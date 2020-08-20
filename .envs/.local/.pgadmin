@@ -1,0 +1,6 @@
+# PG Admin
+# ------------------------------------------------------------
+PGADMIN_DEFAULT_EMAIL=ricardo.ares1989@gmail.com
+PGADMIN_DEFAULT_PASSWORD=Protection.1989
+PGADMIN_LISTEN_PORT=80
+
