@@ -54,6 +54,7 @@ class User(AbstractUser, HisitterModel):
                     max_length=255,
                     blank=False
                 )
+    # is_babysitter = models.BooleanField(_(""))
     GENRES = [
         ('M', 'male'),
         ('F', 'female'),

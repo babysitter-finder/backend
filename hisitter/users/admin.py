@@ -13,10 +13,10 @@ from hisitter.users.models import (
                         Client
                     )
 
-# class CustomUserAdmin(UserAdmin):
-#     """User model admin."""
-#     list_display = ('email', 'username', 'first_name', 'last_name', 'reputation')
-#     list_filter = ('created_at', 'updated_at', 'deleted_at')
+class CustomUserAdmin(UserAdmin):
+    """User model admin."""
+    list_display = ('email', 'username', 'first_name', 'last_name', 'reputation')
+    list_filter = ('created_at', 'updated_at', 'deleted_at')
 
 
 @admin.register(Babysitter)

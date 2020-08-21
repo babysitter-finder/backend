@@ -31,6 +31,7 @@ class Babysitter(User, HisitterModel):
                             decimal_places=2,
                             blank=False
                         )
+    
 
 
 class Availability(models.Model):

@@ -1,14 +1,17 @@
-from django.urls import path
+""" User URLs """
 
-from hisitter.users.views import (
-    user_detail_view,
-    user_redirect_view,
-    user_update_view,
-)
+# Django imports
+from django.urls import path, include
 
-app_name = "users"
+# Django REST Framework
+from rest_framework.routers import DefaultRouter
+
+# Views
+from .views import users as users_views
+
+router = DefaultRouter()
+router.register(r'users', users_views.UserViewSet, basename='users')
+
 urlpatterns = [
-    path("~redirect/", view=user_redirect_view, name="redirect"),
-    path("~update/", view=user_update_view, name="update"),
-    path("<str:username>/", view=user_detail_view, name="detail"),
+    path('', include(router.urls))
 ]
