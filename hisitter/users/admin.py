@@ -1,17 +1,45 @@
+""" Configure for admin page."""
+
+# Django imports
 from django.contrib import admin
-from django.contrib.auth import admin as auth_admin
-from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 
-from hisitter.users.forms import UserChangeForm, UserCreationForm
+# Models
+from hisitter.users.models import (
+                        User,
+                        Babysitter,
+                        Availability,
+                        Child,
+                        Client
+                    )
 
-User = get_user_model()
+# class CustomUserAdmin(UserAdmin):
+#     """User model admin."""
+#     list_display = ('email', 'username', 'first_name', 'last_name', 'reputation')
+#     list_filter = ('created_at', 'updated_at', 'deleted_at')
 
 
-@admin.register(User)
-class UserAdmin(auth_admin.UserAdmin):
+@admin.register(Babysitter)
+class BabysitterAdmin(admin.ModelAdmin):
+    """ Babysitter Admin."""
+    list_display = ("user_bbs", "cost_of_service")
+    search_fields = ("user_bbs__username", "user_bbs__email", "user_bbs__reputation")
+    list_filter = ("cost_of_service",)
 
-    form = UserChangeForm
-    add_form = UserCreationForm
-    fieldsets = (("User", {"fields": ("name",)}),) + auth_admin.UserAdmin.fieldsets
-    list_display = ["username", "name", "is_superuser"]
-    search_fields = ["name"]
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    """ Client Admin."""
+    list_display = ('user_client',)
+    search_fields = ('user_client_username', 'user_client__email')
+
+@admin.register(Child)
+class ChildAdmin(admin.ModelAdmin):
+    """ Child Admin."""
+    list_display = ('client', 'genre')
+    search_fields = ('client__username', 'client__email')
+    list_filter = ('genre',)
+
+@admin.register(Availability)
+class Availability(admin.ModelAdmin):
+    """ Availability Admin."""
+    list_display = ('bbs','day', 'shift')

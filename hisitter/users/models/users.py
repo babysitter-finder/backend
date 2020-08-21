@@ -2,15 +2,16 @@
 
 # Django imports
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.db import models
 
-# Utils Abstrac model
-from hisitter.users.utils.abstract_user import HisitterModel
+# Utils Abstract model
+from hisitter.utils.abstract_users import HisitterModel
+
 
 class User(AbstractUser, HisitterModel):
     """ Default user for hisitter.
@@ -64,8 +65,7 @@ class User(AbstractUser, HisitterModel):
                     default='SE'
                 )       
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username, first_name', 'last_name']
-
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'birthdate', 'address', 'phone_number']
 
     def get_absolute_url(self):
         """Get url for user's detail view.
@@ -81,3 +81,6 @@ class User(AbstractUser, HisitterModel):
         return {'username': self.username,
                 'email': self.email,
                 }
+    
+    class Meta:
+        ordering = ['-reputation']

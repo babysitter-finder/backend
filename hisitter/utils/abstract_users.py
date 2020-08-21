@@ -22,7 +22,8 @@ class HisitterModel(models.Model):
                     )
     deleted_at = models.DateTimeField('deleted at',
                         editable=True,
-                        blank=True
+                        blank=True,
+                        null=True
                     )
 
     class Meta:
