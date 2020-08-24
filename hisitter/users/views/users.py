@@ -35,7 +35,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
             permissions = [IsAuthenticated]
         return [p() for p in permissions]
 
-    @action(Detail=False, methods=['post'])
+    @action(detail=False, methods=['post'])
     def signup(self, request):
         """ User signup."""
         serializer = UserSignupSerializer(data=request.data)

@@ -2,7 +2,7 @@
 
 # Django imports
 from django.conf import settings
-from django.contrib.auth import password_validator, authenticate
+from django.contrib.auth import password_validation, authenticate
 from django.core.validators import RegexValidator
 
 # Django REST Framework
@@ -56,4 +56,4 @@ class UserSignupSerializer(serializers.Serializer):
     genre = serializers.CharField(min_length=1, max_length=2)
     picture = serializers.ImageField(allow_empty_file=True)
     #Babysitter data
-    education_degree = serializers.CharField(min_length=10, max_length=50, allow)
+    education_degree = serializers.CharField(min_length=10, max_length=50)
