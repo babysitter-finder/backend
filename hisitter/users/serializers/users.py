@@ -2,6 +2,7 @@
 
 # Python
 import logging
+from collections import Counter
 
 # Django imports
 from django.conf import settings
@@ -85,6 +86,21 @@ class UserSignupSerializer(serializers.Serializer):
             raise serializers.ValidationError("Passwords don't match.")
         password_validation.validate_password(passwd)
         return data
+    
+    def validate_availability(self, value):
+        """ Check if in the request only has only a unique combination
+            between shift and day."""
+        cnt = Counter()  
+        if value:
+            for i in value:
+                day, shift = i.values()
+                mix_day_shift = str(day) + ', '+ str(shift)
+                cnt[mix_day_shift] += 1
+            if cnt.most_common(1)[0][1] >= 2:
+                raise serializers.ValidationError(
+                        f'You need set a unique combination this {cnt.most_common(1)[0]} is repeated'
+                    )
+        return value
     
     def create(self, data):
         """ Handle user and babysitter data."""

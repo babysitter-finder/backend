@@ -49,13 +49,3 @@ class AvailabilitySerializer(serializers.Serializer):
                         ('N','night')
                         ]
                     )
-    class Meta:
-        """ Define a Meta class to validate if a shift will not
-            be sent twice exactly the same.
-        """
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Availability.objects.all(),
-                fields=['day', 'shift']
-            )
-        ]
