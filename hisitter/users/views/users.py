@@ -13,8 +13,10 @@ from rest_framework.permissions import (
 # Serializers
 from hisitter.users.serializers import (
                                 UserModelSerializer,
-                                UserSignupSerializer
-)
+                                UserSignupSerializer,
+                                AccountVerificationSerializer,
+                                UserLoginSerializer
+                            )
 
 
 class UserViewSet(mixins.RetrieveModelMixin,
@@ -34,6 +36,18 @@ class UserViewSet(mixins.RetrieveModelMixin,
         else:
             permissions = [IsAuthenticated]
         return [p() for p in permissions]
+    
+    @action(detail=False, methods=['post'])
+    def login(self, request):
+        """User login."""
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user, token = serializer.save()
+        data = {
+            'user': UserModelSerializer(user).data,
+            'access_token': token
+        }
+        return Response(data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['post'])
     def signup(self, request):
@@ -44,3 +58,13 @@ class UserViewSet(mixins.RetrieveModelMixin,
         user = serializer.save()
         data = UserModelSerializer(user).data
         return Response(data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['post'])
+    def verify(self, request):
+        """ Account verification."""
+        serializer = AccountVerificationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = {'message': 'Congratulations, now find a babysitter'}
+        return Response(data, status=status.HTTP_200_OK)
+    

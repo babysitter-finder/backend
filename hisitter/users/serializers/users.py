@@ -22,6 +22,12 @@ from .babysitters import (
                         AvailabilitySerializer
                     )
 
+# Celery task
+from hisitter.users.tasks import send_confirmation_email
+
+# Utilities
+from datetime import timedelta
+import jwt
 
 class UserModelSerializer(serializers.ModelSerializer):
     """ User model Serializer."""
@@ -95,4 +101,51 @@ class UserSignupSerializer(serializers.Serializer):
             logging.info('This is a Client instance')
             user = User.objects.create_user(**data, is_verified=False)
             client = Client.objects.create(user_client=user)
+        send_confirmation_email.delay(user_pk=user.pk)
         return user
+
+class AccountVerificationSerializer(serializers.Serializer):
+    """ Account verification serializer."""
+    token = serializers.CharField()
+
+    def validate_token(self, data):
+        """ Verify token is valid."""
+        try: 
+            payload = jwt.decode(data, settings.SECRET_KEY, algorithm=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise serializers.ValidationError('Verification link has expired')
+        except jwt.exceptions.PyJWTError:
+            raise serializers.ValidationError('Invalidad token')
+        if payload['type'] != 'email_confirmation':
+            raise serializers.ValidationError('Invalid token')
+        self.context['payload'] = payload
+        return data
+
+    def save(self):
+        """ Update user's verified status."""
+        payload = self.context['payload']
+        user = User.objects.get(username=payload['user'])
+        user.is_verified = True
+        user.save()
+
+class UserLoginSerializer(serializers.Serializer):
+    """ User login serializer
+        Handle the login request data.
+    """
+    email = serializers.EmailField()
+    password = serializers.CharField(min_length=8, max_length=64)
+
+    def validate(self, data):
+        """ Check credentials."""
+        user = authenticate(username=data['email'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError('Invalid Credentials')
+        if not user.is_verified:
+            raise serializers.ValidationsError('Account is not active yet')
+        self.context['user'] = user
+        return data
+
+    def create(self, data):
+        """ Generate or retrieve new token."""
+        token, created = Token.objects.get_or_create(user=self.context['user'])
+        return self.context['user'], token.key
