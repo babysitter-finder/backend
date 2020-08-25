@@ -38,7 +38,7 @@ class User(AbstractUser, HisitterModel):
                     storage=FileSystemStorage(location=settings.MEDIA_ROOT),
                     upload_to='pictures',
                 )
-    birthdate = models.DateTimeField('birthdate',
+    birthdate = models.DateField('birthdate',
                         blank=False
                     )
 
@@ -79,9 +79,7 @@ class User(AbstractUser, HisitterModel):
 
     def __str__(self):
         """Return user's str representation."""
-        return {'username': self.username,
-                'email': self.email,
-                }
-    
+        return self.username + ', ' + self.email
+
     class Meta:
         ordering = ['-reputation']

@@ -11,13 +11,15 @@ from .users import User
 from hisitter.utils.abstract_users import HisitterModel
 
 
-class Client(User, HisitterModel):
+class Client(HisitterModel):
     """ Class which create the relation between User and client,
         this class is maked with the objective of control the children
         of each user."""
 
-    user_client =  models.OneToOneField(User, verbose_name=_("Client"), on_delete=models.CASCADE, parent_link=True)
-
+    user_client =  models.OneToOneField(User, 
+                            verbose_name=_("Client"), 
+                            on_delete=models.CASCADE
+                        )
 class Child(models.Model):
     """ Class to define the child or children per Client. """
     client = models.ForeignKey("Client",
@@ -26,7 +28,7 @@ class Child(models.Model):
             related_name='children',
             related_query_name='child'
         )
-    birthdate = models.DateTimeField('birthdate',
+    birthdate = models.DateField('birthdate',
                         blank=False
                     )
     GENRES = [

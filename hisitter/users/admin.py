@@ -30,7 +30,7 @@ class BabysitterAdmin(admin.ModelAdmin):
 class ClientAdmin(admin.ModelAdmin):
     """ Client Admin."""
     list_display = ('user_client',)
-    search_fields = ('user_client_username', 'user_client__email')
+    search_fields = ('user_client__username', 'user_client__email')
 
 @admin.register(Child)
 class ChildAdmin(admin.ModelAdmin):
@@ -43,3 +43,5 @@ class ChildAdmin(admin.ModelAdmin):
 class Availability(admin.ModelAdmin):
     """ Availability Admin."""
     list_display = ('bbs','day', 'shift')
+
+admin.site.register(User, CustomUserAdmin)

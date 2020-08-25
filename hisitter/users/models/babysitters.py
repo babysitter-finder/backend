@@ -11,13 +11,12 @@ from hisitter.utils.abstract_users import HisitterModel
 from .users import User
 
 
-class Babysitter(User, HisitterModel):
+class Babysitter(HisitterModel):
     """This class is to match the user and the babysitter attributes."""
 
     user_bbs =  models.OneToOneField(User,
                         verbose_name=_("Babysitter"),
-                        on_delete=models.CASCADE,
-                        parent_link=True
+                        on_delete=models.CASCADE
                     )
     education_degree = models.CharField(_("Education degree"),
                             max_length=50,
@@ -60,12 +59,12 @@ class Availability(models.Model):
                     choices=DAYS,
                     default='M'
                 )
-    SHIFTS = (
+    SHIFTS = [
         ('M','morning'),
         ('A','afternoon'),
         ('E','evening'),
         ('N','night')
-    )
+    ]
     shift = models.CharField(
                     max_length=10,
                     choices=SHIFTS,
