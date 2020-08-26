@@ -14,6 +14,7 @@ class BabysitterModelSerializer(serializers.ModelSerializer):
         """ Meta class."""
         model = Babysitter
         fields =(
+            'userbbs',
             'education_degree',
             'about_me',
             'cost_of_service'

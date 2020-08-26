@@ -15,24 +15,30 @@ from hisitter.users.serializers import (
     UserModelSerializer,
     UserSignupSerializer,
     AccountVerificationSerializer,
+    BabysitterModelSerializer,
     UserLoginSerializer
 )
 
 # Models
-from hisitter.users.models import User
+from hisitter.users.models import User, Babysitter
 
 
 class UserViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
     viewsets.GenericViewSet
 ):
     """ User view set.
         Handle sign up, login and account verification.
     """
-    queryset = User.objects.filter(is_active=True)
     serializer_class = UserModelSerializer
     lookup_field = 'username'
+
+    def get_queryset(self):
+        """ Restrict the list to public only."""
+        users_query = User.objects.filter(userbbs__isnull=False)
+        return users_query
 
     def get_permission(self):
         """Assign permissions based on actions."""

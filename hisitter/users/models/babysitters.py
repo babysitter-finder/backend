@@ -16,6 +16,7 @@ class Babysitter(HisitterModel):
     user_bbs = models.OneToOneField(
         User,
         verbose_name=_("Babysitter"),
+        related_name='userbbs',
         on_delete=models.CASCADE
     )
     education_degree = models.CharField(
