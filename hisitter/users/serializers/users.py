@@ -8,31 +8,31 @@ from collections import Counter
 from django.conf import settings
 from django.contrib.auth import password_validation, authenticate
 from django.core.validators import RegexValidator
-
-# Django REST Framework
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
 
 # Models
 from hisitter.users.models import User, Babysitter, Client, Availability
-
-# Serializers
 from .babysitters import (
-                        BabysitterSerializer,
-                        AvailabilitySerializer
-                    )
+    BabysitterModelSerializer,
+    AvailabilitySerializer
+)
 
 # Celery task
 from hisitter.users.tasks import send_confirmation_email
 
 # Utilities
-from datetime import timedelta
 import jwt
+import time
+
 
 class UserModelSerializer(serializers.ModelSerializer):
     """ User model Serializer."""
+    babysitter = BabysitterModelSerializer(read_only=True, required=False)
+    availability = AvailabilitySerializer(required=False, many=True)
     class Meta:
+        """Meta class."""
         model = User
         fields = [
             'username',
@@ -43,26 +43,34 @@ class UserModelSerializer(serializers.ModelSerializer):
             'reputation',
             'birthdate',
             'picture',
-            'address'
+            'address',
+            'babysitter',
+            'availability'
         ]
+
+        read_only_fields = (
+            'reputation',
+        )
+
 
 class UserSignupSerializer(serializers.Serializer):
     """ User signup Serializer.
         Handle sign up data validation and user/type user creation.
     """
     email = serializers.EmailField(
-                        validators=[UniqueValidator(queryset=User.objects.all())]
-                    )
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
     username = serializers.CharField(
-                            min_length=4,
-                            max_length=20,
-                            validators=[UniqueValidator(queryset=User.objects.all())]
-                        )
+        min_length=4,
+        max_length=20,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
     # Phone number
     phone_regex = RegexValidator(
         regex=r'\+?1?\d{10,12}',
         message='Phone number must be entered in the format: +9999999999. Up to 12 digits allowed'
     )
+    phone_number = serializers.CharField(validators=[phone_regex])
     password = serializers.CharField(min_length=8, max_length=64)
     password_confirmation = serializers.CharField(min_length=8, max_length=64)
     # User personal data
@@ -72,12 +80,11 @@ class UserSignupSerializer(serializers.Serializer):
     address = serializers.CharField(min_length=10, max_length=255)
     genre = serializers.CharField(min_length=1, max_length=2)
     picture = serializers.ImageField(allow_empty_file=True, required=False)
-
     # Babysitter
-    user_bbs = BabysitterSerializer(required=False)
+    user_bbs = BabysitterModelSerializer(required=False)
     # Availability
     availability = AvailabilitySerializer(required=False, many=True)
-    
+
     def validate(self, data):
         """Verify passwords match."""
         passwd = data['password']
@@ -86,22 +93,22 @@ class UserSignupSerializer(serializers.Serializer):
             raise serializers.ValidationError("Passwords don't match.")
         password_validation.validate_password(passwd)
         return data
-    
+
     def validate_availability(self, value):
         """ Check if in the request only has only a unique combination
             between shift and day."""
-        cnt = Counter()  
+        cnt = Counter()
         if value:
             for i in value:
                 day, shift = i.values()
-                mix_day_shift = str(day) + ', '+ str(shift)
+                mix_day_shift = str(day) + ', ' + str(shift)
                 cnt[mix_day_shift] += 1
             if cnt.most_common(1)[0][1] >= 2:
                 raise serializers.ValidationError(
-                        f'You need set a unique combination this {cnt.most_common(1)[0]} is repeated'
+                    f'You need set a unique combination this {cnt.most_common(1)[0]} is repeated'
                     )
         return value
-    
+
     def create(self, data):
         """ Handle user and babysitter data."""
         data.pop('password_confirmation')
@@ -114,11 +121,14 @@ class UserSignupSerializer(serializers.Serializer):
                 for shift in availability:
                     Availability.objects.create(bbs=bbs, **shift)
         except KeyError:
-            logging.info('This is a Client instance')
+            logging.info('This is a instance client')
             user = User.objects.create_user(**data, is_verified=False)
+            logging.info(f'User created, whit pk {user.pk}')
             client = Client.objects.create(user_client=user)
-        send_confirmation_email.delay(user_pk=user.pk)
+        logging.info(f'User pk is already to pass {user.pk}')
+        send_confirmation_email.delay(username=user.username, email=user.email )
         return user
+
 
 class AccountVerificationSerializer(serializers.Serializer):
     """ Account verification serializer."""
@@ -126,7 +136,7 @@ class AccountVerificationSerializer(serializers.Serializer):
 
     def validate_token(self, data):
         """ Verify token is valid."""
-        try: 
+        try:
             payload = jwt.decode(data, settings.SECRET_KEY, algorithm=['HS256'])
         except jwt.ExpiredSignatureError:
             raise serializers.ValidationError('Verification link has expired')
@@ -144,6 +154,7 @@ class AccountVerificationSerializer(serializers.Serializer):
         user.is_verified = True
         user.save()
 
+
 class UserLoginSerializer(serializers.Serializer):
     """ User login serializer
         Handle the login request data.
@@ -157,7 +168,7 @@ class UserLoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError('Invalid Credentials')
         if not user.is_verified:
-            raise serializers.ValidationsError('Account is not active yet')
+            raise serializers.ValidationError('Account is not active yet')
         self.context['user'] = user
         return data
 

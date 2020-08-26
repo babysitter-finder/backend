@@ -2,7 +2,7 @@
 # Python
 import os
 
-#Celery
+# Celery
 from celery import Celery
 
 # set the default Django settings module for the 'celery' program.

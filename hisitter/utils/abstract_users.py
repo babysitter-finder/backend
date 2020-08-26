@@ -1,7 +1,8 @@
 """ Configuration of initial user fields by default in each model."""
 
-#Django imports
+# Django imports
 from django.db import models
+
 
 class HisitterModel(models.Model):
     """ HisitterModel has the default fields configuration that
@@ -12,19 +13,22 @@ class HisitterModel(models.Model):
             * deleted_at(Datetime): store the date at the object will be hidden
                     for the app.
     """
-    created_at = models.DateTimeField('created at', 
-                        auto_now_add=True,
-                        help_text='Date time on which the object was created.'
-                    )
-    updated_at = models.DateTimeField('updated at',
-                        auto_now=True,
-                        help_text='Date time on which the object was modified'
-                    )
-    deleted_at = models.DateTimeField('deleted at',
-                        editable=True,
-                        blank=True,
-                        null=True
-                    )
+    created_at = models.DateTimeField(
+        'created at',
+        auto_now_add=True,
+        help_text='Date time on which the object was created.'
+    )
+    updated_at = models.DateTimeField(
+        'updated at',
+        auto_now=True,
+        help_text='Date time on which the object was modified'
+    )
+    deleted_at = models.DateTimeField(
+        'deleted at',
+        editable=True,
+        blank=True,
+        null=True
+    )
 
     class Meta:
         """Meta options."""

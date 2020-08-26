@@ -7,23 +7,21 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 
 # Celery imports
-from celery.decorators import task, periodic_task
-from config import celery_app
+from celery.decorators import task
 
 # Models
-from hisitter.users.models import (
-                            User
-                        )
+from hisitter.users.models import User
 
 # Utilities
 import jwt
 from datetime import timedelta
 
-def gen_verification_token(user):
+
+def gen_verification_token(username):
     """Create JWT token that the user can use to verify its account."""
     exp_date = timezone.now() + timedelta(days=3)
     payload = {
-        'user': user.username,
+        'user': username,
         'exp': int(exp_date.timestamp()),
         'type': 'email_confirmation'
     }
@@ -32,16 +30,15 @@ def gen_verification_token(user):
 
 
 @task(name='send_confirmation_email', max_retries=3)
-def send_confirmation_email(user_pk):
+def send_confirmation_email(username, email):
     """Send account verification link to given user."""
-    user = User.objects.get(pk=user_pk)
-    verification_token = gen_verification_token(user)
-    subject = f'Welcome @{user.username}! verify your account to start find a babysitter'
+    verification_token = gen_verification_token(username)
+    subject = f'Welcome @{username}! verify your account to start find a babysitter'
     from_email = 'Hisitter <noreply@hisitter.xyz'
     content = render_to_string(
         'emails/users/account_verification.html',
-        {'token':verification_token, 'user':user}
+        {'token': verification_token, 'user': username}
     )
-    msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
+    msg = EmailMultiAlternatives(subject, content, from_email, [email])
     msg.attach_alternative(content, "text/html")
     msg.send()

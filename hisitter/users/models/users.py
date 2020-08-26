@@ -19,52 +19,54 @@ class User(AbstractUser, HisitterModel):
         Extend from django's Abstract user, change the username field
         to email and add some extra fields.
     """
-    email = models.EmailField(_('email address'),
-                    unique=True,
-                    error_messages={
-                        'unique': 'A user with that email already exists'
-                    },
-                )
+    email = models.EmailField(
+        _('email address'),
+        unique=True,
+        error_messages={
+            'unique': 'A user with that email already exists'
+        },
+    )
     phone_regex = RegexValidator(
         regex=r'\+?1?\d{10,12}',
         message="Phone number must be entered in 10 digits format."
     )
     phone_number = models.CharField(
-                        validators=[phone_regex],
-                        max_length=15, 
-                        blank=False
-                    )
-    picture = models.ImageField('user picture',
-                    storage=FileSystemStorage(location=settings.MEDIA_ROOT),
-                    upload_to='pictures',
-                )
-    birthdate = models.DateField('birthdate',
-                        blank=False
-                    )
-
-    is_verified = models.BooleanField('verified',
-                        default=False,
-                        help_text='Set to True when the user have verified its email address'
-                    )
+        validators=[phone_regex],
+        max_length=15,
+        blank=False
+    )
+    picture = models.ImageField(
+        'user picture',
+        storage=FileSystemStorage(location=settings.MEDIA_ROOT),
+        upload_to='pictures',
+    )
+    birthdate = models.DateField(
+        'birthdate',
+        blank=False
+    )
+    is_verified = models.BooleanField(
+        'verified',
+        default=False,
+        help_text='Set to True when the user have verified its email address'
+    )
     reputation = models.FloatField(
-                        default=5.0,
-                        help_text="User's reputation bases on the services."
-                    )
+        default=5.0,
+        help_text="User's reputation bases on the services."
+    )
     address = models.CharField(
-                    max_length=255,
-                    blank=False
-                )
-    # is_babysitter = models.BooleanField(_(""))
+        max_length=255,
+        blank=False
+    )
     GENRES = [
         ('M', 'male'),
         ('F', 'female'),
         ('SE', 'Unspecified')
     ]
     genre = models.CharField(
-                    max_length=2,
-                    choices=GENRES,
-                    default='SE'
-                )       
+        max_length=2,
+        choices=GENRES,
+        default='SE'
+    )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'birthdate', 'address', 'phone_number']
 
