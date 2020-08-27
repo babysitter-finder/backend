@@ -48,33 +48,33 @@ class Availability(models.Model):
         "Babysitter",
         verbose_name=_("Availibility"),
         on_delete=models.CASCADE,
-        related_name='availibilities',
+        related_name='availabilities',
         related_query_name='availibility'
     )
     DAYS = [
-        ('M', 'monday'),
-        ('T', 'tuesday'),
-        ('W', 'wednesday'),
-        ('TH', 'thursday'),
-        ('F', 'friday'),
-        ('S', 'saturday'),
-        ('SU', 'sunday')
+        ('MONDAY', 'monday'),
+        ('TUESDAY', 'tuesday'),
+        ('WEDNESDAY', 'wednesday'),
+        ('THURSDAY', 'thursday'),
+        ('FRIDAY', 'friday'),
+        ('SATURDAY', 'saturday'),
+        ('SUNDAY', 'sunday')
     ]
     day = models.CharField(
                     max_length=10,
                     choices=DAYS,
-                    default='M'
+                    default='MONDAY'
                 )
     SHIFTS = [
-        ('M', 'morning'),
-        ('A', 'afternoon'),
-        ('E', 'evening'),
-        ('N', 'night')
+        ('MORNING', 'morning'),
+        ('AFTERNOON', 'afternoon'),
+        ('EVENING', 'evening'),
+        ('NIGHT', 'night')
     ]
     shift = models.CharField(
                     max_length=10,
                     choices=SHIFTS,
-                    default='M'
+                    default='MORNING'
                 )
 
     def __str__(self):
