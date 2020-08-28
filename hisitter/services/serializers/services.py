@@ -143,7 +143,7 @@ class EndServiceSerializer(serializers.ModelSerializer):
         date = data.strftime("%A")
         service_start = self.context['service'].service_start
         if service_start:
-            if service_start > data:
+            if service_start < data:
                 return data
             else:
                 raise serializers.ValidationError(
