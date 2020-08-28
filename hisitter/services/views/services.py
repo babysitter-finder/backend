@@ -1,5 +1,9 @@
 """ Service views."""
 
+# Ptyhon
+import datetime
+from datetime import timezone
+
 # Django imports
 from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
 from django.db.models import Q
@@ -12,7 +16,12 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import get_object_or_404
 
 # Serializers
-from hisitter.services.serializers import ServiceModelSerializer, CreateServiceSerializer
+from hisitter.services.serializers import (
+    ServiceModelSerializer,
+    CreateServiceSerializer,
+    StartServiceSerializer,
+    EndServiceSerializer
+)
 
 # Models
 from hisitter.users.models import Babysitter, Client
@@ -20,6 +29,15 @@ from hisitter.services.models import Service
 
 # Permissions
 from hisitter.services.permissions import IsServiceOwner, IsUserClient
+
+def time_cost_treatment(service_start, service_end, cost_of_service):
+    """ Function that helps to treatment the delta of dates. """
+    timedelta = service_end - service_start
+    days_to_hours = timedelta.days * 24
+    seconds_to_hours = timedelta.seconds//3600
+    total_hours = days_to_hours + seconds_to_hours
+    cost_of_service = float(cost_of_service)
+    return total_hours * cost_of_service
 
 
 class ServiceViewSet(
@@ -49,7 +67,48 @@ class ServiceViewSet(
     @action(detail=True, methods=['patch'])
     def start(self, request, *args, **kwargs):
         """ Start the service. """
-        import ipdb; ipdb.set_trace()
+        self.service = Service.objects.get(pk=kwargs['pk'])
+        date = datetime.datetime.now()
+        serializer = StartServiceSerializer(
+            self.service,
+            data={'service_start': date},
+            partial=True,
+            context={'service': self.service}
+        )
+        serializer.is_valid(raise_exception=True)
+        service = serializer.save()
+        data = ServiceModelSerializer(service).data
+        return Response(data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['patch'])
+    def end(self, request, *args, **kwargs):
+        """ Start the service. """
+        self.service = Service.objects.get(pk=kwargs['pk'])
+        service_start = self.service.service_start
+        service_end = datetime.datetime.now(timezone.utc)
+        self.babysitter = self.service.user_bbs
+        cost_per_hour = self.babysitter.cost_of_service
+        total_cost = time_cost_treatment(
+            service_start,
+            service_end,
+            cost_per_hour
+        )
+        date = datetime.datetime.now()
+        serializer = EndServiceSerializer(
+            self.service,
+            data={
+                'service_end': date,
+                'total_cost': total_cost,
+                'is_active': False
+            },
+            partial=True,
+            context={'service': self.service}
+        )
+        serializer.is_valid(raise_exception=True)
+        service = serializer.save()
+        data = ServiceModelSerializer(service).data
+        return Response(data, status=status.HTTP_200_OK)
+
 
 class ServiceCreateViewSet(
     mixins.CreateModelMixin,
@@ -65,6 +124,7 @@ class ServiceCreateViewSet(
         babysitter = kwargs['babysitter']
         self.babysitter = get_object_or_404(Babysitter, user_bbs__username=babysitter)
         return super(ServiceCreateViewSet, self).dispatch(request, *args, **kwargs)
+    
     def get_permissions(self):
         """ Validate if the request user is client, a babysitter
             can't create a service.

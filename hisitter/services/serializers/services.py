@@ -28,11 +28,17 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'address',
             'count_children',
             'special_cares',
-            'is_active'
+            'is_active',
+            'service_start',
+            'service_end',
+            'total_cost'
         ]
         read_only_fields = (
             'user_client',
-            'user_bbs'
+            'user_bbs',
+            'service_start',
+            'service_end',
+            'total_cost'
         )
 
 class CreateServiceSerializer(serializers.ModelSerializer):
@@ -76,3 +82,62 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         """ Create the Service. """
         service = Service.objects.create(**data, is_active=True)
         return service
+
+class StartServiceSerializer(serializers.ModelSerializer):
+    """ Start the service with the time of server. """
+    service_start = serializers.DateTimeField()
+    class Meta:
+        """ Meta Class. """
+        model = Service
+        fields = ('service_start',)
+
+    def validate_service_start(self, data):
+        """ Validate if the service start in the date. """
+        date = data.strftime("%A")
+        date_schedule = self.context['service'].date
+        date_schedule = date_schedule.strftime("%A")
+        if date_schedule == date:
+            return data
+        else:
+            raise serializers.ValidationError('The service must be start at day of schedule')
+
+class EndServiceSerializer(serializers.ModelSerializer):
+    """ Start the service with the time of server. """
+    service_end = serializers.DateTimeField()
+    is_active = serializers.BooleanField()
+    total_cost = serializers.DecimalField(
+        max_digits=7,
+        decimal_places=2    
+    )
+    class Meta:
+        """ Meta Class. """
+        model = Service
+        fields = (
+            'service_end',
+            'is_active',
+            'total_cost'
+        )
+
+    def validate_service_end(self, data):
+        """ Validate if the service start in the date. """
+        date = data.strftime("%A")
+        service_start = self.context['service'].service_start
+        if service_start:
+            if service_start > data:
+                return data
+            else:
+                raise serializers.ValidationError(
+                    'The time of service end must be great than service start'
+                )
+        else:
+            raise serializers.ValidationError(
+                'The service still does not start'
+            )
+    
+    def validate_is_active(self, data):
+        """ Validate if the service is in this moment active. """
+        is_active = self.context['service'].is_active
+        if is_active != data:
+            return data
+        else:
+            raise serializers.ValidationError('The service was finish before')
