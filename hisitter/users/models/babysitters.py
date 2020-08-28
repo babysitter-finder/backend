@@ -39,7 +39,8 @@ class Babysitter(HisitterModel):
         return str(self.user_bbs)
 
 class Availability(models.Model):
-    """ This class is to create availability per day for babysitting,
+    """ This class is to create availability 
+        per day for babysitting,
         requires the next fields:
         day: charfield(options)
         shift: charfield(options)
@@ -52,30 +53,30 @@ class Availability(models.Model):
         related_query_name='availibility'
     )
     DAYS = [
-        ('MONDAY', 'monday'),
-        ('TUESDAY', 'tuesday'),
-        ('WEDNESDAY', 'wednesday'),
-        ('THURSDAY', 'thursday'),
-        ('FRIDAY', 'friday'),
-        ('SATURDAY', 'saturday'),
-        ('SUNDAY', 'sunday')
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+        ('Sunday', 'Sunday')
     ]
     day = models.CharField(
-                    max_length=10,
-                    choices=DAYS,
-                    default='MONDAY'
-                )
+        max_length=10,
+        choices=DAYS,
+        default='Monday'
+    )
     SHIFTS = [
-        ('MORNING', 'morning'),
-        ('AFTERNOON', 'afternoon'),
-        ('EVENING', 'evening'),
-        ('NIGHT', 'night')
+        ('morning', 'morning'),
+        ('afternoon', 'afternoon'),
+        ('evening', 'evening'),
+        ('night', 'night')
     ]
     shift = models.CharField(
-                    max_length=10,
-                    choices=SHIFTS,
-                    default='MORNING'
-                )
+        max_length=10,
+        choices=SHIFTS,
+        default='morning'
+    )
 
     def __str__(self):
         return str(self.bbs) + f'{self.shift}, {self.day}'

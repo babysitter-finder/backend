@@ -2,6 +2,7 @@
 
 # Django imports
 from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
+from django.db.models import Q
 
 # Django REST Framework imports
 from rest_framework.response import Response
@@ -11,6 +12,7 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated
 )
+from rest_framework.generics import get_object_or_404
 
 # Serializers
 from hisitter.users.serializers import (
@@ -21,12 +23,14 @@ from hisitter.users.serializers import (
     UserLoginSerializer,
     AvailabilitySerializer
 )
+from hisitter.services.serializers import ServiceModelSerializer
 
 # Permissions
 from hisitter.users.permissions import IsAccountOwner
 
 # Models
-from hisitter.users.models import User, Babysitter
+from hisitter.services.models import Service
+from hisitter.users.models import User, Babysitter, Client
 
 
 class UserViewSet(
@@ -111,4 +115,21 @@ class UserViewSet(
                     'cost_of_service': str(bbs_data.cost_of_service),
                     'education_degree': bbs_data.education_degree,
                 }
+        return response
+    
+    def retrieve(self, request, *args, **kwargs):
+        """ Add the service data to the response. """
+        response = super(UserViewSet, self).retrieve(request, *args, *kwargs)
+        user = request.user
+        try:
+            bbs = Babysitter.objects.get(user_bbs=user)
+            services = Service.objects.filter(user_bbs=bbs, is_active=True)
+        except Babysitter.DoesNotExist:
+            client = get_object_or_404(Client, user_client=user)
+            services = Service.objects.filter(user_client=client, is_active=True)
+        data = {
+            'user': response.data,
+            'services': ServiceModelSerializer(services, many=True).data
+        }
+        response.data = data
         return response

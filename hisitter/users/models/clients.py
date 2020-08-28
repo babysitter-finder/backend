@@ -18,5 +18,9 @@ class Client(HisitterModel):
     user_client = models.OneToOneField(
         User,
         verbose_name=_("Client"),
+        related_name='userclient',
         on_delete=models.CASCADE
     )
+    
+    def __str__(self):
+        return str(self.user_client)

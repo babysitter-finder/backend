@@ -24,20 +24,20 @@ class AvailabilitySerializer(serializers.Serializer):
         of the babysitter."""
     day = serializers.ChoiceField(
         choices=[
-            ('MONDAY', 'monday'),
-            ('TUESDAY', 'tuesday'),
-            ('WEDNESDAY', 'wednesday'),
-            ('THURSDAY', 'thursday'),
-            ('FRIDAY', 'friday'),
-            ('SATURDAY', 'saturday'),
-            ('SUNDAY', 'sunday')
+            ('Monday', 'Monday'),
+            ('Tuesday', 'Tuesday'),
+            ('Wednesday', 'Wednesday'),
+            ('Thursday', 'Thursday'),
+            ('Friday', 'Friday'),
+            ('Saturday', 'Saturday'),
+            ('Sunday', 'Sunday')
         ]
     )
     shift = serializers.ChoiceField(
         choices=[
-            ('MORNING', 'morning'),
-            ('AFTERNOON', 'afternoon'),
-            ('EVENING', 'evening'),
-            ('NIGHT', 'night')
+            ('morning', 'morning'),
+            ('afternoon', 'afternoon'),
+            ('evening', 'evening'),
+            ('night', 'night')
         ]
     )
