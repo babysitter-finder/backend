@@ -3,6 +3,7 @@
 # Ptyhon
 import datetime
 from datetime import timezone
+import logging
 
 # Django imports
 from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
@@ -28,17 +29,10 @@ from hisitter.users.models import Babysitter, Client
 from hisitter.services.models import Service
 
 # Permissions
-from hisitter.services.permissions import IsServiceOwner, IsUserClient
+from hisitter.services.permissions import IsUserClient
 
-def time_cost_treatment(service_start, service_end, cost_of_service):
-    """ Function that helps to treatment the delta of dates. """
-    timedelta = service_end - service_start
-    days_to_hours = timedelta.days * 24
-    seconds_to_hours = timedelta.seconds//3600
-    total_hours = days_to_hours + seconds_to_hours
-    cost_of_service = float(cost_of_service)
-    return total_hours * cost_of_service
-
+# Utils
+from hisitter.utils.functions_utils import time_cost_treatment
 
 class ServiceViewSet(
     mixins.RetrieveModelMixin,
@@ -60,8 +54,6 @@ class ServiceViewSet(
     def get_permissions(self):
         """ Assign permissions bassed on actions."""
         permissions = [IsAuthenticated]
-        if self.action in ['update', 'partial_update','start', 'finish']:
-            permissions.append(IsServiceOwner)
         return [p() for p in permissions]
 
     @action(detail=True, methods=['patch'])
@@ -69,6 +61,13 @@ class ServiceViewSet(
         """ Start the service. """
         self.service = Service.objects.get(pk=kwargs['pk'])
         date = datetime.datetime.now()
+        if (request.user.userclient == 
+            self.service.user_client) or (
+                request.user.userclient == self.service.user_bbs):
+            logging.info('Permiso concedido')
+        else:
+            error = {"You don't have permissions to acces in this service"}
+            return Response(error, status=status.HTTP_401_UNAUTHORIZED)
         serializer = StartServiceSerializer(
             self.service,
             data={'service_start': date},
@@ -84,10 +83,21 @@ class ServiceViewSet(
     def end(self, request, *args, **kwargs):
         """ Start the service. """
         self.service = Service.objects.get(pk=kwargs['pk'])
+        
         service_start = self.service.service_start
+        if not service_start:
+            error = {"This services doesn't start still"}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
         service_end = datetime.datetime.now(timezone.utc)
         self.babysitter = self.service.user_bbs
         cost_per_hour = self.babysitter.cost_of_service
+        if (request.user.userclient == 
+            self.service.user_client) or (
+                request.user.userclient == self.service.user_bbs):
+            logging.info('Permiso concedido')
+        else:
+            error = {"You don't have permissions to acces in this service"}
+            return Response(error, status=status.HTTP_401_UNAUTHORIZED)
         total_cost = time_cost_treatment(
             service_start,
             service_end,
