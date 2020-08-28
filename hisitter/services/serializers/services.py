@@ -14,6 +14,10 @@ from rest_framework import serializers
 from hisitter.services.models import Service
 from hisitter.users.models import Availability
 
+# Task
+from hisitter.services.tasks import create_a_service_email
+
+
 class ServiceModelSerializer(serializers.ModelSerializer):
     """ Service Model Serializer. """
     class Meta:
@@ -80,6 +84,22 @@ class CreateServiceSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         """ Create the Service. """
+        client = data['user_client'].user_client
+        bbs = data['user_bbs'].user_bbs
+        client_username = client.username
+        bbs_username = bbs.username
+        client_email = client.email
+        bbs_email = bbs.email
+        date = data['date'].strftime("%Y-%m-%w")
+        shift = data['shift']
+        create_a_service_email(
+            client_username=client_username,
+            bbs_username=bbs_username,
+            client_email=client_email,
+            bbs_email=bbs_email,
+            date=date,
+            shift=shift
+        )
         service = Service.objects.create(**data, is_active=True)
         return service
 
