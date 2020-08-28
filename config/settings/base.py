@@ -71,7 +71,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "hisitter.users.apps.UsersAppsConfig",
-    "hisitter.services.apps.ServicesAppsConfig"
+    "hisitter.services.apps.ServicesAppsConfig",
+    "hisitter.reviews.apps.ReviewsAppsConfig"
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

@@ -1,7 +1,6 @@
 """ Services model module. """
 
 # Django imports
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator
@@ -11,19 +10,19 @@ from hisitter.utils.abstract_users import HisitterModel
 
 class Service(HisitterModel):
     """ This model hast the main activity in the application
-        receiving the user-client, and the user-bbs, on the
+        recieving the user-client, and the user-bbs, on the
         service of attention to the child or children.
     """
     user_client = models.ForeignKey(
         "users.Client",
         verbose_name=_("Customer"),
-        related_name='userservice',
+        related_name='client_service',
         on_delete=models.CASCADE
     )
     user_bbs = models.ForeignKey(
         "users.Babysitter",
         verbose_name=_("Babysitter"),
-        related_name='bbsservice',
+        related_name='bbs_service',
         on_delete=models.CASCADE
     )
     date = models.DateField(

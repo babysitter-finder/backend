@@ -46,7 +46,7 @@ class UserModelSerializer(serializers.ModelSerializer):
             'birthdate',
             'picture',
             'address',
-            'userbbs',
+            'user_bbs',
             'babysitter',
             'availability'
         ]

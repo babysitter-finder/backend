@@ -18,7 +18,7 @@ class Client(HisitterModel):
     user_client = models.OneToOneField(
         User,
         verbose_name=_("Client"),
-        related_name='userclient',
+        related_name='user_client',
         on_delete=models.CASCADE
     )
     

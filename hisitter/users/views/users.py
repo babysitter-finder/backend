@@ -96,9 +96,9 @@ class UserViewSet(
         user = self.get_object()
         try:
             user_data = UserModelSerializer(user).data
-            babysitter_data = BabysitterModelSerializer(user.userbbs).data
+            babysitter_data = BabysitterModelSerializer(user.user_bbs).data
             user_data['babysitter_data'] = babysitter_data
-            availability_data = AvailabilitySerializer(user.userbbs.availabilities, many=True).data
+            availability_data = AvailabilitySerializer(user.user_bbs.availabilities, many=True).data
             user_data['babysitter_data']['availability_data'] = availability_data
             return Response(user_data)
         except Exception:
@@ -107,11 +107,11 @@ class UserViewSet(
     def list(self, request, *args, **kwargs):
         response = super(UserViewSet, self).list(request, *args, *kwargs)
         for user in response.data['results']:
-            if user['userbbs'] == None:
+            if user['user_bbs'] == None:
                 pass
             else:
-                bbs_data = Babysitter.objects.get(pk=user['userbbs'])
-                user['userbbs'] = {
+                bbs_data = Babysitter.objects.get(pk=user['user_bbs'])
+                user['user_bbs'] = {
                     'cost_of_service': str(bbs_data.cost_of_service),
                     'education_degree': bbs_data.education_degree,
                 }

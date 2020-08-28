@@ -16,5 +16,3 @@ router.register(r'services/(?P<babysitter>[a-z-A-Z0-9_-]+)/creation', service_vi
 urlpatterns = [
     path('', include(router.urls)),
 ]
-
-# 

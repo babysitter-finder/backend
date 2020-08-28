@@ -49,8 +49,10 @@ class User(AbstractUser, HisitterModel):
         default=False,
         help_text='Set to True when the user have verified its email address'
     )
-    reputation = models.FloatField(
+    reputation = models.DecimalField(
         default=5.0,
+        max_digits=2,
+        decimal_places=1,
         help_text="User's reputation bases on the services."
     )
     address = models.CharField(

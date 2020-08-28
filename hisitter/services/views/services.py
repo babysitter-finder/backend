@@ -6,14 +6,13 @@ from datetime import timezone
 import logging
 
 # Django imports
-from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
 from django.db.models import Q
 
 # Django REST Framework imports
 from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import get_object_or_404
 
 # Serializers
@@ -61,9 +60,9 @@ class ServiceViewSet(
         """ Start the service. """
         self.service = Service.objects.get(pk=kwargs['pk'])
         date = datetime.datetime.now()
-        if (request.user.userclient == 
+        if (request.user.user_client == 
             self.service.user_client) or (
-                request.user.userclient == self.service.user_bbs):
+                request.user.user_client == self.service.user_bbs):
             logging.info('Permiso concedido')
         else:
             error = {"You don't have permissions to acces in this service"}
@@ -91,9 +90,9 @@ class ServiceViewSet(
         service_end = datetime.datetime.now(timezone.utc)
         self.babysitter = self.service.user_bbs
         cost_per_hour = self.babysitter.cost_of_service
-        if (request.user.userclient == 
+        if (request.user.user_client == 
             self.service.user_client) or (
-                request.user.userclient == self.service.user_bbs):
+                request.user.user_client == self.service.user_bbs):
             logging.info('Permiso concedido')
         else:
             error = {"You don't have permissions to acces in this service"}
