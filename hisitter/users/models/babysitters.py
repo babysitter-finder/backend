@@ -16,7 +16,7 @@ class Babysitter(HisitterModel):
     user_bbs = models.OneToOneField(
         User,
         verbose_name=_("Babysitter"),
-        related_name='userbbs',
+        related_name='user_bbs',
         on_delete=models.CASCADE
     )
     education_degree = models.CharField(
@@ -39,7 +39,8 @@ class Babysitter(HisitterModel):
         return str(self.user_bbs)
 
 class Availability(models.Model):
-    """ This class is to create availability per day for babysitting,
+    """ This class is to create availability 
+        per day for babysitting,
         requires the next fields:
         day: charfield(options)
         shift: charfield(options)
@@ -48,34 +49,34 @@ class Availability(models.Model):
         "Babysitter",
         verbose_name=_("Availibility"),
         on_delete=models.CASCADE,
-        related_name='availibilities',
+        related_name='availabilities',
         related_query_name='availibility'
     )
     DAYS = [
-        ('M', 'monday'),
-        ('T', 'tuesday'),
-        ('W', 'wednesday'),
-        ('TH', 'thursday'),
-        ('F', 'friday'),
-        ('S', 'saturday'),
-        ('SU', 'sunday')
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+        ('Sunday', 'Sunday')
     ]
     day = models.CharField(
-                    max_length=10,
-                    choices=DAYS,
-                    default='M'
-                )
+        max_length=10,
+        choices=DAYS,
+        default='Monday'
+    )
     SHIFTS = [
-        ('M', 'morning'),
-        ('A', 'afternoon'),
-        ('E', 'evening'),
-        ('N', 'night')
+        ('morning', 'morning'),
+        ('afternoon', 'afternoon'),
+        ('evening', 'evening'),
+        ('night', 'night')
     ]
     shift = models.CharField(
-                    max_length=10,
-                    choices=SHIFTS,
-                    default='M'
-                )
+        max_length=10,
+        choices=SHIFTS,
+        default='morning'
+    )
 
     def __str__(self):
         return str(self.bbs) + f'{self.shift}, {self.day}'

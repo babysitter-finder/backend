@@ -49,8 +49,10 @@ class User(AbstractUser, HisitterModel):
         default=False,
         help_text='Set to True when the user have verified its email address'
     )
-    reputation = models.FloatField(
+    reputation = models.DecimalField(
         default=5.0,
+        max_digits=2,
+        decimal_places=1,
         help_text="User's reputation bases on the services."
     )
     address = models.CharField(
@@ -58,14 +60,14 @@ class User(AbstractUser, HisitterModel):
         blank=False
     )
     GENRES = [
-        ('M', 'male'),
-        ('F', 'female'),
-        ('SE', 'Unspecified')
+        ('male', 'male'),
+        ('female', 'female'),
+        ('unspecified', 'unspecified')
     ]
     genre = models.CharField(
-        max_length=2,
+        max_length=11,
         choices=GENRES,
-        default='SE'
+        default='unspecified'
     )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'birthdate', 'address', 'phone_number']

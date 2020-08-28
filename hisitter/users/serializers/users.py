@@ -8,6 +8,8 @@ from collections import Counter
 from django.conf import settings
 from django.contrib.auth import password_validation, authenticate
 from django.core.validators import RegexValidator
+
+# Django Rest Framework Serializers
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
@@ -44,7 +46,7 @@ class UserModelSerializer(serializers.ModelSerializer):
             'birthdate',
             'picture',
             'address',
-            'userbbs',
+            'user_bbs',
             'babysitter',
             'availability'
         ]
@@ -79,7 +81,7 @@ class UserSignupSerializer(serializers.Serializer):
     last_name = serializers.CharField(min_length=2, max_length=30)
     birthdate = serializers.DateField()
     address = serializers.CharField(min_length=10, max_length=255)
-    genre = serializers.CharField(min_length=1, max_length=2)
+    genre = serializers.CharField(min_length=1, max_length=11)
     picture = serializers.ImageField(allow_empty_file=True, required=False)
     # Babysitter
     user_bbs = BabysitterModelSerializer(required=False)

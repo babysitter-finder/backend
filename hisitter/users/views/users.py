@@ -1,14 +1,18 @@
 """ Users views."""
 
+# Django imports
+from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
+from django.db.models import Q
+
 # Django REST Framework imports
 from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 from rest_framework.decorators import action
-
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated
 )
+from rest_framework.generics import get_object_or_404
 
 # Serializers
 from hisitter.users.serializers import (
@@ -16,11 +20,17 @@ from hisitter.users.serializers import (
     UserSignupSerializer,
     AccountVerificationSerializer,
     BabysitterModelSerializer,
-    UserLoginSerializer
+    UserLoginSerializer,
+    AvailabilitySerializer
 )
+from hisitter.services.serializers import ServiceModelSerializer
+
+# Permissions
+from hisitter.users.permissions import IsAccountOwner
 
 # Models
-from hisitter.users.models import User, Babysitter
+from hisitter.services.models import Service
+from hisitter.users.models import User, Babysitter, Client
 
 
 class UserViewSet(
@@ -37,15 +47,15 @@ class UserViewSet(
 
     def get_queryset(self):
         """ Restrict the list to public only."""
-        users_query = User.objects.filter(userbbs__isnull=False)
+        users_query = User.objects.all()
         return users_query
 
-    def get_permission(self):
+    def get_permissions(self):
         """Assign permissions based on actions."""
         if self.action in ['signup', 'login', 'verify']:
             permissions = [AllowAny]
-        elif self.action == ['retrieve', 'update', 'partial_update']:
-            permissions = [IsAuthenticated]
+        elif self.action in ['retrieve', 'update', 'partial_update']:
+            permissions = [IsAuthenticated, IsAccountOwner]
         else:
             permissions = [IsAuthenticated]
         return [p() for p in permissions]
@@ -80,17 +90,46 @@ class UserViewSet(
         data = {'message': 'Congratulations, now find a babysitter'}
         return Response(data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['put', 'patch'])
-    def user_data(self, request, *args, **kwargs):
-        """Update user data, can be partial update or total"""
+    @action(detail=True, methods=['get'])
+    def babysitter_data(self, request, *args, **kwargs):
+        """Obtain de babysitter data"""
         user = self.get_object()
-        partial = request.method == 'PATCH'
-        serializer = UserModelSerializer(
-            user,
-            data=request.data,
-            partial=partial
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        data = UserModelSerializer(user).data
-        return Response(data)
+        try:
+            user_data = UserModelSerializer(user).data
+            babysitter_data = BabysitterModelSerializer(user.user_bbs).data
+            user_data['babysitter_data'] = babysitter_data
+            availability_data = AvailabilitySerializer(user.user_bbs.availabilities, many=True).data
+            user_data['babysitter_data']['availability_data'] = availability_data
+            return Response(user_data)
+        except Exception:
+            return Response(f'{str(user)} is not a babysitter' , status.HTTP_400_BAD_REQUEST)
+
+    def list(self, request, *args, **kwargs):
+        response = super(UserViewSet, self).list(request, *args, *kwargs)
+        for user in response.data['results']:
+            if user['user_bbs'] == None:
+                pass
+            else:
+                bbs_data = Babysitter.objects.get(pk=user['user_bbs'])
+                user['user_bbs'] = {
+                    'cost_of_service': str(bbs_data.cost_of_service),
+                    'education_degree': bbs_data.education_degree,
+                }
+        return response
+    
+    def retrieve(self, request, *args, **kwargs):
+        """ Add the service data to the response. """
+        response = super(UserViewSet, self).retrieve(request, *args, *kwargs)
+        user = request.user
+        try:
+            bbs = Babysitter.objects.get(user_bbs=user)
+            services = Service.objects.filter(user_bbs=bbs, is_active=True)
+        except Babysitter.DoesNotExist:
+            client = get_object_or_404(Client, user_client=user)
+            services = Service.objects.filter(user_client=client, is_active=True)
+        data = {
+            'user': response.data,
+            'services': ServiceModelSerializer(services, many=True).data
+        }
+        response.data = data
+        return response
