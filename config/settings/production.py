@@ -135,6 +135,8 @@ ANYMAIL = {
     "MAILGUN_API_URL": env("MAILGUN_API_URL", default="https://api.mailgun.net/v3"),
 }
 
+#CORS CONFIGURATION
+CORS_ORIGIN_ALLOW_ALL = True
 
 # LOGGING
 # ------------------------------------------------------------------------------
