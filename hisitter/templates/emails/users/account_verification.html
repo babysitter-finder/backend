@@ -1,50 +1,8 @@
-<p>Welcome @{{ username }}</p>
+<p>Welcome {{ username }}</p>
 
 Before you start using <b>Hisitter</b> we need you to do one last thing.
 Please click in the button to verify the account.
     <p>
-        <button id="button">
-            Verificar cuenta
-        </button>
+            <a href="https://hisitter.xyz/users/verify/{{ token }}/">Verificar cuenta</a>
     </p>
 </p>
-
-
-<style>
-    #button {
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        background-color: pink;
-    }
-
-</style>
-
-
-<script>
-    var formdata = new FormData();
-formdata.append("token", "{{ token }}" );
-
-var requestOptions = {
-  method: 'POST',
-  body: formdata,
-  redirect: 'follow'
-};
-
-var button = document.getElementById("button")
-button.onclick = function(e){
-
-    fetch("https://hisitter.xyz/users/verify/", requestOptions)
-    .then(response => response.text())
-    .then(result => alert(result))
-    .catch(error => console.log('error', error));
-
-}
-
-</script>

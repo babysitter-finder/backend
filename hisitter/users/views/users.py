@@ -81,10 +81,10 @@ class UserViewSet(
         data = UserModelSerializer(user).data
         return Response(data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['post'])
-    def verify(self, request):
+    @action(detail=False, methods=['get'], url_path=r'verify/(?P<token>.*)')
+    def verify(self, request, *args, **kwargs):
         """ Account verification."""
-        serializer = AccountVerificationSerializer(data=request.data)
+        serializer = AccountVerificationSerializer(data=kwargs)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = {'message': 'Congratulations, now find a babysitter'}

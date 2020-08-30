@@ -37,7 +37,7 @@ def send_confirmation_email(username, email):
     from_email = 'Hisitter <noreply@hisitter.xyz'
     content = render_to_string(
         'emails/users/account_verification.html',
-        {'token': verification_token, 'user': username}
+        {'token': verification_token, 'username': username}
     )
     msg = EmailMultiAlternatives(
         subject,
