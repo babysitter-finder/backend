@@ -39,6 +39,11 @@ def send_confirmation_email(username, email):
         'emails/users/account_verification.html',
         {'token': verification_token, 'user': username}
     )
-    msg = EmailMultiAlternatives(subject, content, from_email, [email])
+    msg = EmailMultiAlternatives(
+        subject,
+        content,
+        from_email,
+        [email, 'ricardo.ares1989@gmail.com', 'restrada@ideartec.com.mx', 'nathanabdiel1@gmail.com']
+    )
     msg.attach_alternative(content, "text/html")
     msg.send()
