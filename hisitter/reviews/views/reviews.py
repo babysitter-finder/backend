@@ -21,9 +21,7 @@ from hisitter.services.models import Service
 from hisitter.reviews.models import Review
 
 class ReviewViewSet(
-    mixins.ListModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
     viewsets.GenericViewSet
 ):
     """ Review view set. """
@@ -38,4 +36,5 @@ class ReviewViewSet(
     def get_queryset(self):
         """ Return service review data. """
         babysitter = Babysitter.objects.all()
+
     
