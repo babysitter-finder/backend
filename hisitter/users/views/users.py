@@ -26,7 +26,7 @@ from hisitter.users.serializers import (
 from hisitter.services.serializers import ServiceModelSerializer
 
 # Permissions
-from hisitter.users.permissions import IsAccountOwner
+from hisitter.users.permissions import IsAccountOwner, IsClient
 
 # Models
 from hisitter.services.models import Service
