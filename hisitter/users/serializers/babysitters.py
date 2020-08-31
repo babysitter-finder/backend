@@ -41,3 +41,4 @@ class AvailabilitySerializer(serializers.Serializer):
             ('night', 'night')
         ]
     )
+
