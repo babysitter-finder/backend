@@ -31,8 +31,8 @@ import time
 
 class UserModelSerializer(serializers.ModelSerializer):
     """ User model Serializer."""
-    babysitter = BabysitterModelSerializer(read_only=True, required=False)
-    availability = AvailabilitySerializer(required=False, many=True)
+    user_bbs = BabysitterModelSerializer(read_only=True, required=False)
+    
     class Meta:
         """Meta class."""
         model = User
@@ -46,9 +46,9 @@ class UserModelSerializer(serializers.ModelSerializer):
             'birthdate',
             'picture',
             'address',
+            'lat',
+            'long',
             'user_bbs',
-            'babysitter',
-            'availability'
         ]
 
         read_only_fields = (

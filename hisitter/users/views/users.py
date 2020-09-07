@@ -1,5 +1,8 @@
 """ Users views."""
 
+# Python
+import json
+
 # Django imports
 from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
 from django.db.models import Q
@@ -24,6 +27,7 @@ from hisitter.users.serializers import (
     AvailabilitySerializer
 )
 from hisitter.services.serializers import ServiceModelSerializer
+from hisitter.reviews.serializers import ReviewModelSerializer
 
 # Permissions
 from hisitter.users.permissions import IsAccountOwner, IsClient
@@ -31,6 +35,7 @@ from hisitter.users.permissions import IsAccountOwner, IsClient
 # Models
 from hisitter.services.models import Service
 from hisitter.users.models import User, Babysitter, Client
+from hisitter.reviews.models import Review
 
 
 class UserViewSet(
@@ -47,8 +52,11 @@ class UserViewSet(
 
     def get_queryset(self):
         """ Restrict the list to public only."""
-        users_query = User.objects.all()
-        return users_query
+        queryset = User.objects.all()
+        if self.action == 'list':
+            queyset = User.objects.filter(user_bbs__isnull=False)
+            return queryset
+        return queryset
 
     def get_permissions(self):
         """Assign permissions based on actions."""
@@ -57,7 +65,7 @@ class UserViewSet(
         elif self.action in ['retrieve', 'update', 'partial_update']:
             permissions = [IsAuthenticated, IsAccountOwner]
         else:
-            permissions = [IsAuthenticated]
+            permissions = [IsAuthenticated, IsClient]
         return [p() for p in permissions]
 
     @action(detail=False, methods=['post'])
@@ -93,29 +101,12 @@ class UserViewSet(
     @action(detail=True, methods=['get'])
     def babysitter_data(self, request, *args, **kwargs):
         """Obtain de babysitter data"""
-        user = self.get_object()
+        bbs = User.objects.get(username=kwargs['username'])
         try:
-            user_data = UserModelSerializer(user).data
-            babysitter_data = BabysitterModelSerializer(user.user_bbs).data
-            user_data['babysitter_data'] = babysitter_data
-            availability_data = AvailabilitySerializer(user.user_bbs.availabilities, many=True).data
-            user_data['babysitter_data']['availability_data'] = availability_data
+            user_data = UserModelSerializer(bbs).data
             return Response(user_data)
         except Exception:
-            return Response(f'{str(user)} is not a babysitter' , status.HTTP_400_BAD_REQUEST)
-
-    def list(self, request, *args, **kwargs):
-        response = super(UserViewSet, self).list(request, *args, *kwargs)
-        for user in response.data['results']:
-            if user['user_bbs'] == None:
-                pass
-            else:
-                bbs_data = Babysitter.objects.get(pk=user['user_bbs'])
-                user['user_bbs'] = {
-                    'cost_of_service': str(bbs_data.cost_of_service),
-                    'education_degree': bbs_data.education_degree,
-                }
-        return response
+            return Response(f'{str(bbs)} is not a babysitter' , status.HTTP_400_BAD_REQUEST)
     
     def retrieve(self, request, *args, **kwargs):
         """ Add the service data to the response. """
@@ -124,11 +115,14 @@ class UserViewSet(
         try:
             bbs = Babysitter.objects.get(user_bbs=user)
             services = Service.objects.filter(user_bbs=bbs, is_active=True)
+            reviews = Review.objects.filter(service_origin__user_bbs=bbs)
         except Babysitter.DoesNotExist:
             client = get_object_or_404(Client, user_client=user)
             services = Service.objects.filter(user_client=client, is_active=True)
+            reviews = None
         data = {
             'user': response.data,
+            # 'services': ServiceModelSerializer(services, many=True).data,
             'services': ServiceModelSerializer(services, many=True).data
         }
         response.data = data

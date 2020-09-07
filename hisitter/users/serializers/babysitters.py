@@ -7,17 +7,7 @@ from rest_framework import serializers
 from hisitter.users.models import Babysitter
 
 
-class BabysitterModelSerializer(serializers.ModelSerializer):
-    """This serializer is an aid to define if the user is a
-        Babysitter or a regular customer."""
-    class Meta:
-        """ Meta class."""
-        model = Babysitter
-        fields =(
-            'education_degree',
-            'about_me',
-            'cost_of_service'
-        )
+
 
 class AvailabilitySerializer(serializers.Serializer):
     """ This class define the constraints to define the availability
@@ -42,3 +32,18 @@ class AvailabilitySerializer(serializers.Serializer):
         ]
     )
 
+class BabysitterModelSerializer(serializers.ModelSerializer):
+    """This serializer is an aid to define if the user is a
+        Babysitter or a regular customer."""
+
+    availabilities = AvailabilitySerializer(read_only=True, many=True)
+
+    class Meta:
+        """ Meta class."""
+        model = Babysitter
+        fields =(
+            'education_degree',
+            'about_me',
+            'cost_of_service',
+            'availabilities'
+        )

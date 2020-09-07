@@ -50,6 +50,20 @@ class Service(HisitterModel):
         _("Address"),
         max_length=255
     )
+    lat = models.DecimalField(
+        _("Latitude"),
+        max_digits=10,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )
+    long =  models.DecimalField(
+        _("Latitude"),
+        max_digits=10,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )    
     max_validator = MaxValueValidator(
         limit_value=10,
         message='The maximum number of children per babysitter must be 10'
@@ -88,4 +102,4 @@ class Service(HisitterModel):
         null=True
     )
     def __str__(self):
-        return str(self.user_client) + f'{str(self.user_bbs)}, {str(self.date)}'
+        return  'id ' + str(self.id) + ', ' + str(self.user_client) + f'{str(self.user_bbs)}, {str(self.date)}'

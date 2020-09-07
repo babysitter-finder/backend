@@ -33,6 +33,10 @@ from hisitter.services.permissions import IsUserClient
 # Utils
 from hisitter.utils.functions_utils import time_cost_treatment
 
+# Swagger
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 class ServiceViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
@@ -54,6 +58,15 @@ class ServiceViewSet(
         """ Assign permissions bassed on actions."""
         permissions = [IsAuthenticated]
         return [p() for p in permissions]
+    
+    def get_serializer_class(self):
+        """ Return seralizer based on action."""
+        if self.action == 'start':
+            return StartServiceSerializer
+        if self.action == 'end':
+            return EndServiceSerializer
+        else:
+            return ServiceModelSerializer
 
     @action(detail=True, methods=['patch'])
     def start(self, request, *args, **kwargs):
@@ -120,13 +133,11 @@ class ServiceViewSet(
 
 
 class ServiceCreateViewSet(
-    mixins.CreateModelMixin,
     viewsets.GenericViewSet
 ):
     """ Create the service with babysitting information.
         This information will be passed in the url.
     """
-    serializer_class = CreateServiceSerializer
 
     def dispatch(self, request, *args, **kwargs):
         """ Verify that Babysitter exists. """
@@ -150,11 +161,33 @@ class ServiceCreateViewSet(
         context = super(ServiceCreateViewSet, self).get_serializer_context()
         context['babysitter'] = self.babysitter
 
-    def create(self, request, *args, **kwargs):
+    def get_serializer_class(self):
+        """ Return the serializer class for create a Service."""
+        if self.action == 'create_service':
+            return CreateServiceSerializer
+
+    operation_description= "Create a service with the information of the babysitter, and details of service."
+    service_created_response = openapi.Response("Retrieve the partial detail of Serviece", ServiceModelSerializer)       
+    @swagger_auto_schema(
+        operation_decription=operation_description,
+        responses={201: service_created_response},
+        request_body=CreateServiceSerializer
+    )
+    @action(detail=False, methods=['post'], url_path=r'create/(?P<babysitter>[a-z-A-Z0-9_-]+)')
+    def create_service(self, request, *args, **kwargs):
         """ Create the service with information of babysitter."""
         user = request.user.pk
         user_client = Client.objects.get(user_client=user)
         babysitter = self.babysitter.pk
         request.data['user_client'] = user_client.pk
         request.data['user_bbs'] = babysitter
-        return super(ServiceCreateViewSet, self).create(request, *args, **kwargs)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(
+            data=request.data,
+            context=self.get_serializer_context(),
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        service = serializer.save()
+        data = ServiceModelSerializer(service).data
+        return Response(data, status=status.HTTP_201_CREATED)

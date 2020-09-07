@@ -11,7 +11,7 @@ from .views import reviews as reviews_views
 
 
 router = DefaultRouter()
-router.register(r'reviews/(?P<babysitter>[a-z-A-Z0-9_-]+)/babysitter', reviews_views.ReviewViewSet, basename='reviews')
+router.register(r'reviews/(?P<service>[0-9]+)/service', reviews_views.ReviewViewSet, basename='reviews')
 
 urlpatterns = [
     path('', include(router.urls)),
