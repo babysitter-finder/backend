@@ -27,6 +27,10 @@ from hisitter.reviews.models import Review
 # Serializers
 from hisitter.reviews.serializers import CreateReviewModelSerializer, ReviewModelSerializer
 
+# Swagger
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 class ReviewViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet
@@ -58,3 +62,13 @@ class ReviewViewSet(
         context = super(ReviewViewSet, self).get_serializer_context()
         context['service'] = self.service
         return context
+
+    operation_description= "Create a review with the information of the service."
+    review_created_response = openapi.Response("Retrieve the review", CreateReviewModelSerializer)       
+    @swagger_auto_schema(
+        operation_decription=operation_description,
+        responses={201: review_created_response},
+        request_body=CreateReviewModelSerializer
+    )
+    def create(self, request, *args, **kwargs):
+        return super(ReviewViewSet, self).create(request, *args, **kwargs)

@@ -16,7 +16,7 @@ class CreateReviewModelSerializer(serializers.ModelSerializer):
             'reputation',
             'review',
         )
-        read_only_read = (
+        read_only_fields = (
             'service_origin',
         )
 

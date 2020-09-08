@@ -3,6 +3,7 @@
 # Python
 import logging
 from collections import Counter
+import time
 
 # Django imports
 from django.conf import settings
@@ -24,9 +25,9 @@ from .babysitters import (
 # Celery task
 from hisitter.users.tasks import send_confirmation_email
 
-# Utilities
+# Utils
 import jwt
-import time
+import geocoder
 
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -95,6 +96,8 @@ class UserSignupSerializer(serializers.Serializer):
         if passwd != passwd_conf:
             raise serializers.ValidationError("Passwords don't match.")
         password_validation.validate_password(passwd)
+        geocode = geocoder.google(data['address'], key=settings.GOOGLE_API_KEY)
+        data['lat'], data['long'] = geocode.latlng
         return data
 
     def validate_availability(self, value):
