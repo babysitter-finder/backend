@@ -48,7 +48,7 @@ http:
         certResolver: letsencrypt
 
     flower-secure-router:
-      rule: "Host(`hisitter.xyz`) || Host(`hisitter.xyz/flower/`"
+      rule: "Host(`hisitter.xyz`) || Host(`hisitter.xyz/flower/`)"
       entryPoints:
         - flower
       service: flower
