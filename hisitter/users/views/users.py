@@ -52,11 +52,12 @@ class UserViewSet(
 
     def get_queryset(self):
         """ Restrict the list to public only."""
-        queryset = User.objects.all()
         if self.action == 'list':
-            queyset = User.objects.filter(user_bbs__isnull=False)
+            queryset = User.objects.filter(user_bbs__isnull=False)
             return queryset
-        return queryset
+        else:
+            queryset = User.objects.all()
+            return queryset
 
     def get_permissions(self):
         """Assign permissions based on actions."""
