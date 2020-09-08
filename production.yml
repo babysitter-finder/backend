@@ -60,9 +60,6 @@ services:
   flower:
     <<: *django
     image: hisitter_production_flower
-    container_name: flower
-    ports:
-      - "5555:5555"
     command: /start-flower
 
   
