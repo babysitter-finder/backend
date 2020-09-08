@@ -6,6 +6,7 @@ import logging
 
 # Django imports
 from django.db.models import Q
+from django.conf import settings
 
 # Django Rest Framework Serializers
 from rest_framework import serializers
@@ -20,6 +21,8 @@ from hisitter.users.models import Availability
 # Task
 from hisitter.services.tasks import create_a_service_email
 
+# Utils
+import geocoder
 
 class ServiceModelSerializer(serializers.ModelSerializer):
     """ Service Model Serializer. """
@@ -88,6 +91,8 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         for service in services:
             if service.date == date and service.shift == shift:
                 raise serializers.ValidationError('This datetime is schedule by other client')
+        geocode = geocoder.google(data['address'], key=settings.GOOGLE_API_KEY)
+        data['lat'], data['long'] = geocode.latlng        
         return data
 
     def create(self, data):
