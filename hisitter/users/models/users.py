@@ -59,6 +59,20 @@ class User(AbstractUser, HisitterModel):
         max_length=255,
         blank=False
     )
+    lat = models.DecimalField(
+        _("Latitude"),
+        max_digits=10,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )
+    long =  models.DecimalField(
+        _("Latitude"),
+        max_digits=10,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )
     GENRES = [
         ('male', 'male'),
         ('female', 'female'),

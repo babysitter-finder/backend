@@ -11,7 +11,7 @@ from django.urls import path, include
 
 router = DefaultRouter()
 router.register(r'services', service_views.ServiceViewSet, basename='services')
-router.register(r'services/(?P<babysitter>[a-z-A-Z0-9_-]+)/creation', service_views.ServiceCreateViewSet, basename='services-creation')
+router.register(r'services', service_views.ServiceCreateViewSet, basename='services-creation')
 
 urlpatterns = [
     path('', include(router.urls)),

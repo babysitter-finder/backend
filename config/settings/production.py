@@ -193,3 +193,9 @@ sentry_sdk.init(
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+# Google
+GOOGLE_API_KEY = env("GOOGLE_API_KEY")
+
+# Email verification
+EMAIL_VERIFICATION_HOST = 'https://hisitter.xyz/'

@@ -33,4 +33,4 @@ class Review(HisitterModel):
     )
     
     def __str__(self):
-        return str(self.service_id) + ', ' + f'{str(self.reputation)}'
+        return str(self.service_origin) + ', ' + f'{str(self.reputation)}'

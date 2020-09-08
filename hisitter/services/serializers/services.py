@@ -6,9 +6,13 @@ import logging
 
 # Django imports
 from django.db.models import Q
+from django.conf import settings
 
 # Django Rest Framework Serializers
 from rest_framework import serializers
+
+# Serializers
+from hisitter.reviews.serializers import ReviewModelSerializer
 
 # Models
 from hisitter.services.models import Service
@@ -17,9 +21,12 @@ from hisitter.users.models import Availability
 # Task
 from hisitter.services.tasks import create_a_service_email
 
+# Utils
+import geocoder
 
 class ServiceModelSerializer(serializers.ModelSerializer):
     """ Service Model Serializer. """
+    service_origin = ReviewModelSerializer(read_only=True)
     class Meta:
         """ Meta class. """
         model = Service
@@ -30,12 +37,15 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'date',
             'duration',
             'address',
+            'lat',
+            'long',
             'count_children',
             'special_cares',
             'is_active',
             'service_start',
             'service_end',
-            'total_cost'
+            'total_cost',
+            'service_origin'
         ]
         read_only_fields = (
             'user_client',
@@ -47,17 +57,18 @@ class ServiceModelSerializer(serializers.ModelSerializer):
 
 class CreateServiceSerializer(serializers.ModelSerializer):
     """ Create Service Serializer. """
-
-
+    date = serializers.DateField()
+    address = serializers.CharField(min_length=10, max_length=255)
+    count_children = serializers.IntegerField(max_value=10, min_value=1)
+    special_cares = serializers.CharField(allow_blank=True)
     class Meta:
-        """ Mata class. """
+        """ Meta class. """
         model = Service
-        exclude = (
-            'is_active',
-            'duration',
-            'total_cost',
-            'service_end',
-            'service_start',
+        fields = (
+            'date',
+            'address',
+            'count_children',
+            'special_cares',
         )
 
     def validate(self, data):
@@ -73,13 +84,15 @@ class CreateServiceSerializer(serializers.ModelSerializer):
             if availability.day == weekday and shift == availability.shift:
                 logging.info('This date and shift is available')
                 possible = True
-        if possible:
+        if not possible:
             raise serializers.ValidationError("This date it's impossible.")        
                 
         services = Service.objects.filter(Q(user_bbs=data['user_bbs']) & Q(is_active=True))
         for service in services:
             if service.date == date and service.shift == shift:
                 raise serializers.ValidationError('This datetime is schedule by other client')
+        geocode = geocoder.google(data['address'], key=settings.GOOGLE_API_KEY)
+        data['lat'], data['long'] = geocode.latlng        
         return data
 
     def create(self, data):
