@@ -36,6 +36,10 @@ from hisitter.utils.functions_utils import time_cost_treatment
 # Swagger
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from hisitter.utils.swagger import (
+    is_authenticated_permission,
+    is_client_permission
+)
 
 class ServiceViewSet(
     mixins.RetrieveModelMixin,
@@ -53,6 +57,8 @@ class ServiceViewSet(
                 Q(user_client__user_client__username=self.request.user.username) |
                 Q(user_bbs__user_bbs__username=self.request.user.username)
             )
+        else:
+            return Service.objects.all()
      
     def get_permissions(self):
         """ Assign permissions bassed on actions."""
@@ -67,7 +73,13 @@ class ServiceViewSet(
             return EndServiceSerializer
         else:
             return ServiceModelSerializer
-
+            
+    @swagger_auto_schema(
+        manual_parameters=[
+            is_authenticated_permission,
+            is_client_permission
+        ]
+    )   
     @action(detail=True, methods=['patch'])
     def start(self, request, *args, **kwargs):
         """ Start the service. """
@@ -90,7 +102,13 @@ class ServiceViewSet(
         service = serializer.save()
         data = ServiceModelSerializer(service).data
         return Response(data, status=status.HTTP_200_OK)
-    
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            is_authenticated_permission,
+            is_client_permission
+        ]
+    )   
     @action(detail=True, methods=['patch'])
     def end(self, request, *args, **kwargs):
         """ Start the service. """
@@ -171,7 +189,8 @@ class ServiceCreateViewSet(
     @swagger_auto_schema(
         operation_decription=operation_description,
         responses={201: service_created_response},
-        request_body=CreateServiceSerializer
+        request_body=CreateServiceSerializer,
+        manual_parameters=[is_authenticated_permission, is_client_permission]
     )
     @action(detail=False, methods=['post'], url_path=r'create/(?P<babysitter>[a-z-A-Z0-9_-]+)')
     def create_service(self, request, *args, **kwargs):

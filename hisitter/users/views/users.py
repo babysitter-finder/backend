@@ -37,6 +37,13 @@ from hisitter.services.models import Service
 from hisitter.users.models import User, Babysitter, Client
 from hisitter.reviews.models import Review
 
+# Swagger
+from drf_yasg.utils import swagger_auto_schema
+from hisitter.utils.swagger import (
+    is_authenticated_permission,
+    is_account_owner_permission,
+    is_client_permission
+)
 
 class UserViewSet(
     mixins.RetrieveModelMixin,
@@ -99,6 +106,12 @@ class UserViewSet(
         data = {'message': 'Congratulations, now find a babysitter'}
         return Response(data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            is_authenticated_permission,
+            is_client_permission
+            ]
+    )
     @action(detail=True, methods=['get'])
     def babysitter_data(self, request, *args, **kwargs):
         """Obtain de babysitter data"""
@@ -109,6 +122,13 @@ class UserViewSet(
         except Exception:
             return Response(f'{str(bbs)} is not a babysitter' , status.HTTP_400_BAD_REQUEST)
     
+    
+    @swagger_auto_schema(
+        manual_parameters=[
+            is_authenticated_permission,
+            is_account_owner_permission
+            ]
+    )
     def retrieve(self, request, *args, **kwargs):
         """ Add the service data to the response. """
         response = super(UserViewSet, self).retrieve(request, *args, *kwargs)

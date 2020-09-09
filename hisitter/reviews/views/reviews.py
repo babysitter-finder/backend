@@ -30,6 +30,11 @@ from hisitter.reviews.serializers import CreateReviewModelSerializer, ReviewMode
 # Swagger
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from hisitter.utils.swagger import (
+    is_authenticated_permission,
+    is_client_permission,
+    is_service_owner_permission
+)
 
 class ReviewViewSet(
     mixins.CreateModelMixin,
@@ -68,7 +73,12 @@ class ReviewViewSet(
     @swagger_auto_schema(
         operation_decription=operation_description,
         responses={201: review_created_response},
-        request_body=CreateReviewModelSerializer
+        request_body=CreateReviewModelSerializer,
+        manual_parameters=[
+            is_authenticated_permission,
+            is_client_permission,
+            is_service_owner_permission
+        ]
     )
     def create(self, request, *args, **kwargs):
         return super(ReviewViewSet, self).create(request, *args, **kwargs)
