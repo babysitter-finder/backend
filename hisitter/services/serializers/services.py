@@ -35,6 +35,7 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'user_client',
             'user_bbs',
             'date',
+            'shift',
             'duration',
             'address',
             'lat',
@@ -58,7 +59,17 @@ class ServiceModelSerializer(serializers.ModelSerializer):
 class CreateServiceSerializer(serializers.ModelSerializer):
     """ Create Service Serializer. """
     date = serializers.DateField()
+    shift = serializers.ChoiceField(
+        choices=[
+            ('morning', 'morning'),
+            ('afternoon', 'afternoon'),
+            ('evening', 'evening'),
+            ('night', 'night')
+        ]
+    )
     address = serializers.CharField(min_length=10, max_length=255)
+    lat = serializers.DecimalField(max_digits=10, decimal_places=6)
+    long = serializers.DecimalField(max_digits=10, decimal_places=6)
     count_children = serializers.IntegerField(max_value=10, min_value=1)
     special_cares = serializers.CharField(allow_blank=True)
     class Meta:
@@ -66,7 +77,10 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         model = Service
         fields = (
             'date',
+            'shift',
             'address',
+            'lat',
+            'long',
             'count_children',
             'special_cares',
         )
@@ -90,9 +104,7 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         services = Service.objects.filter(Q(user_bbs=data['user_bbs']) & Q(is_active=True))
         for service in services:
             if service.date == date and service.shift == shift:
-                raise serializers.ValidationError('This datetime is schedule by other client')
-        geocode = geocoder.google(data['address'], key=settings.GOOGLE_API_KEY)
-        data['lat'], data['long'] = geocode.latlng        
+                raise serializers.ValidationError('This datetime is schedule by other client')       
         return data
 
     def create(self, data):
