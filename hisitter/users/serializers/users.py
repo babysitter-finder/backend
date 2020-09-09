@@ -97,7 +97,8 @@ class UserSignupSerializer(serializers.Serializer):
             raise serializers.ValidationError("Passwords don't match.")
         password_validation.validate_password(passwd)
         geocode = geocoder.google(data['address'], key=settings.GOOGLE_API_KEY)
-        data['lat'], data['long'] = geocode.latlng
+        if geocode:
+            data['lat'], data['long'] = geocode.latlng
         return data
 
     def validate_availability(self, value):
