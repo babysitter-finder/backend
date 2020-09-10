@@ -1,5 +1,8 @@
 """ Review Serializers. """
 
+# Django imports
+from django.db.models import Avg
+
 # Django Rest Framework Serializers
 from rest_framework import serializers
 
@@ -30,11 +33,17 @@ class CreateReviewModelSerializer(serializers.ModelSerializer):
         
     def create(self, data):
         """ Create the review. """
+        user_bbs = data['service'].user_bbs.user_bbs
         review = Review.objects.create(
             service_origin=data['service'],
             review=data['review'],
             reputation=data['reputation']
         )
+        reputation_avg = Review.objects.filter(
+            service_origin__user_bbs__user_bbs=user_bbs
+        ).aggregate(Avg('reputation'))
+        user_bbs.reputation = reputation_avg['reputation__avg']
+        user_bbs.save()
         return review
 
 class ReviewModelSerializer(serializers.ModelSerializer):

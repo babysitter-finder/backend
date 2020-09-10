@@ -83,6 +83,8 @@ class CreateServiceSerializer(serializers.ModelSerializer):
             'long',
             'count_children',
             'special_cares',
+            'user_bbs',
+            'user_client'
         )
 
     def validate(self, data):
@@ -98,8 +100,8 @@ class CreateServiceSerializer(serializers.ModelSerializer):
             if availability.day == weekday and shift == availability.shift:
                 logging.info('This date and shift is available')
                 possible = True
-        if not possible:
-            raise serializers.ValidationError("This date it's impossible.")        
+        if possible == False:
+            raise serializers.ValidationError("This date and shift it's impossible.")        
                 
         services = Service.objects.filter(Q(user_bbs=data['user_bbs']) & Q(is_active=True))
         for service in services:

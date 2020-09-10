@@ -13,7 +13,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Snippets API",
+        title="Hisitter API",
         description="Snippets from interact with hisitter.",
         default_version='v1',
         contact=openapi.Contact(email="ricardo.ares1989@gmail.com")
