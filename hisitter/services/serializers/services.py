@@ -13,6 +13,8 @@ from rest_framework import serializers
 
 # Serializers
 from hisitter.reviews.serializers import ReviewModelSerializer
+from hisitter.users.serializers import BabysitterFullNameSerializer
+from hisitter.users.serializers import ClientFullNameSerializer
 
 # Models
 from hisitter.services.models import Service
@@ -27,6 +29,8 @@ import geocoder
 class ServiceModelSerializer(serializers.ModelSerializer):
     """ Service Model Serializer. """
     service_origin = ReviewModelSerializer(read_only=True)
+    user_bbs = BabysitterFullNameSerializer(read_only=True)
+    user_client = ClientFullNameSerializer(read_only=True)
     class Meta:
         """ Meta class. """
         model = Service

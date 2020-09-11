@@ -30,6 +30,14 @@ import jwt
 import geocoder
 
 
+class ClientFullNameSerializer(serializers.BaseSerializer):
+    """ Return the first and last name for a babysitter."""
+    def to_representation(self, instance):
+        return{
+            'fullname': instance.user_client.first_name + ' ' + instance.user_client.last_name
+        }
+
+
 class UserModelSerializer(serializers.ModelSerializer):
     """ User model Serializer."""
     user_bbs = BabysitterModelSerializer(read_only=True, required=False)
@@ -46,6 +54,7 @@ class UserModelSerializer(serializers.ModelSerializer):
             'reputation',
             'birthdate',
             'picture',
+            'genre',
             'address',
             'lat',
             'long',
