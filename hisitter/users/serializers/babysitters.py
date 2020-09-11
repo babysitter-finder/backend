@@ -32,6 +32,13 @@ class AvailabilitySerializer(serializers.Serializer):
         ]
     )
 
+class BabysitterFullNameSerializer(serializers.BaseSerializer):
+    """ Return the first and last name for a babysitter."""
+    def to_representation(self, instance):
+        return{
+            'fullname': instance.user_bbs.first_name + ' ' + instance.user_bbs.last_name
+        }
+
 class BabysitterModelSerializer(serializers.ModelSerializer):
     """This serializer is an aid to define if the user is a
         Babysitter or a regular customer."""
