@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
-from django.core.files.storage import FileSystemStorage
+from hisitter.utils.storages import PicturesUsersS3Boto3Storage
 from django.conf import settings
 from django.db import models
 
@@ -37,8 +37,7 @@ class User(AbstractUser, HisitterModel):
     )
     picture = models.ImageField(
         'user picture',
-        storage=FileSystemStorage(location=settings.MEDIA_ROOT),
-        upload_to='pictures',
+        storage=PicturesUsersS3Boto3Storage,
     )
     birthdate = models.DateField(
         'birthdate',
