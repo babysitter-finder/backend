@@ -12,6 +12,6 @@ class MediaRootS3Boto3Storage(S3Boto3Storage):
     file_overwrite = False
 
 
-class PictureUsersS3Boto3Storage(S3Boto3Storage):
+class PicturesUsersS3Boto3Storage(S3Boto3Storage):
     location = "media/pictures"
     file_overwrite = False
