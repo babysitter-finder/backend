@@ -8,10 +8,10 @@ class StaticRootS3Boto3Storage(S3Boto3Storage):
 
 
 class MediaRootS3Boto3Storage(S3Boto3Storage):
-    location = settings.MEDIA_ROOT
+    location = "media"
     file_overwrite = False
 
 
-class PicturesUsersS3Boto3Storage(S3Boto3Storage):
-    location = settings.MEDIA_ROOT + '/pictures'
+class PictureUsersS3Boto3Storage(S3Boto3Storage):
+    location = "media/pictures"
     file_overwrite = False
