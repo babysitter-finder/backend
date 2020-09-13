@@ -33,9 +33,23 @@ import geocoder
 class ClientFullNameSerializer(serializers.BaseSerializer):
     """ Return the first and last name for a babysitter."""
     def to_representation(self, instance):
-        return{
-            'fullname': instance.user_client.first_name + ' ' + instance.user_client.last_name
+        client = instance.user_client
+        client_json = {
+            'fullname': client.first_name + ' ' + client.last_name,
+            'username': client.username,
+            'email': client.email,
+            'phone_number': client.phone_number,
+            'reputation': client.reputation,
+            'birthdate': client.birthdate,
+            'genre': client.genre,
+            'address': client.address,
+            'lat': client.lat,
+            'long': client.long
         }
+        if client.picture:
+            client_json['picture'] = client.picture
+            return client_json 
+        return client_json
 
 
 class UserModelSerializer(serializers.ModelSerializer):

@@ -40,9 +40,7 @@ class Service(HisitterModel):
         choices=SHIFTS,
         default='morning'
     )
-    duration = models.TimeField(
-        auto_now=False,
-        auto_now_add=False,
+    duration = models.DurationField(
         blank=True,
         null=True
     )
