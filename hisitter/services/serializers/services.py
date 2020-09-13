@@ -13,8 +13,10 @@ from rest_framework import serializers
 
 # Serializers
 from hisitter.reviews.serializers import ReviewModelSerializer
-from hisitter.users.serializers import BabysitterFullNameSerializer
-from hisitter.users.serializers import ClientFullNameSerializer
+from hisitter.users.serializers import (
+    BabysitterFullNameSerializer,
+    ClientFullNameSerializer
+)
 
 # Models
 from hisitter.services.models import Service
@@ -160,13 +162,15 @@ class EndServiceSerializer(serializers.ModelSerializer):
         max_digits=7,
         decimal_places=2    
     )
+    duration = serializers.DurationField()
     class Meta:
         """ Meta Class. """
         model = Service
         fields = (
             'service_end',
             'is_active',
-            'total_cost'
+            'total_cost',
+            'duration'
         )
 
     def validate_service_end(self, data):

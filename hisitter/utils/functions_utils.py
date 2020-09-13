@@ -7,4 +7,4 @@ def time_cost_treatment(service_start, service_end, cost_of_service):
     seconds_to_hours = timedelta.seconds//3600
     total_hours = days_to_hours + seconds_to_hours
     cost_of_service = float(cost_of_service)
-    return total_hours * cost_of_service
+    return (total_hours * cost_of_service, timedelta)

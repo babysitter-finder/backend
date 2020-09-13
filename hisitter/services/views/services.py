@@ -128,7 +128,7 @@ class ServiceViewSet(
         else:
             error = {"You don't have permissions to acces in this service"}
             return Response(error, status=status.HTTP_401_UNAUTHORIZED)
-        total_cost = time_cost_treatment(
+        total_cost, duration = time_cost_treatment(
             service_start,
             service_end,
             cost_per_hour
@@ -139,7 +139,8 @@ class ServiceViewSet(
             data={
                 'service_end': date,
                 'total_cost': total_cost,
-                'is_active': False
+                'is_active': False,
+                'duration': duration
             },
             partial=True,
             context={'service': self.service}
