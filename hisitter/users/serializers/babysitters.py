@@ -49,7 +49,7 @@ class BabysitterFullNameSerializer(serializers.BaseSerializer):
             'long': bbs.long
         }
         if bbs.picture:
-            clienbbs_json['picture'] = bbs.picture
+            bbs_json['picture'] = bbs.picture
             return bbs_json 
         return bbs_json
 
