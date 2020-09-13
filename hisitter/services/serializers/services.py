@@ -62,6 +62,7 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'total_cost'
         )
 
+
 class CreateServiceSerializer(serializers.ModelSerializer):
     """ Create Service Serializer. """
     date = serializers.DateField()
@@ -73,9 +74,6 @@ class CreateServiceSerializer(serializers.ModelSerializer):
             ('night', 'night')
         ]
     )
-    address = serializers.CharField(min_length=10, max_length=255)
-    lat = serializers.DecimalField(max_digits=10, decimal_places=6)
-    long = serializers.DecimalField(max_digits=10, decimal_places=6)
     count_children = serializers.IntegerField(max_value=10, min_value=1)
     special_cares = serializers.CharField(allow_blank=True)
     class Meta:
@@ -84,9 +82,6 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         fields = (
             'date',
             'shift',
-            'address',
-            'lat',
-            'long',
             'count_children',
             'special_cares',
             'user_bbs',
@@ -107,8 +102,7 @@ class CreateServiceSerializer(serializers.ModelSerializer):
                 logging.info('This date and shift is available')
                 possible = True
         if possible == False:
-            raise serializers.ValidationError("This date and shift it's impossible.")        
-                
+            raise serializers.ValidationError("This date and shift it's impossible.")
         services = Service.objects.filter(Q(user_bbs=data['user_bbs']) & Q(is_active=True))
         for service in services:
             if service.date == date and service.shift == shift:
@@ -119,6 +113,9 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         """ Create the Service. """
         client = data['user_client'].user_client
         bbs = data['user_bbs'].user_bbs
+        data['address'] = client.address
+        data['lat'] = client.lat
+        data['long'] = client.long
         client_username = client.username
         bbs_username = bbs.username
         client_email = client.email
@@ -135,6 +132,7 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         )
         service = Service.objects.create(**data, is_active=True)
         return service
+
 
 class StartServiceSerializer(serializers.ModelSerializer):
     """ Start the service with the time of server. """
@@ -153,6 +151,7 @@ class StartServiceSerializer(serializers.ModelSerializer):
             return data
         else:
             raise serializers.ValidationError('The service must be start at day of schedule')
+
 
 class EndServiceSerializer(serializers.ModelSerializer):
     """ Start the service with the time of server. """
