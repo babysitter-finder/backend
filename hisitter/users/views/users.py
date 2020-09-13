@@ -135,15 +135,14 @@ class UserViewSet(
         user = request.user
         try:
             bbs = Babysitter.objects.get(user_bbs=user)
-            services = Service.objects.filter(user_bbs=bbs, is_active=True)
+            services = Service.objects.filter(user_bbs=bbs)
             reviews = Review.objects.filter(service_origin__user_bbs=bbs)
         except Babysitter.DoesNotExist:
             client = get_object_or_404(Client, user_client=user)
-            services = Service.objects.filter(user_client=client, is_active=True)
+            services = Service.objects.filter(user_client=client)
             reviews = None
         data = {
             'user': response.data,
-            # 'services': ServiceModelSerializer(services, many=True).data,
             'services': ServiceModelSerializer(services, many=True).data
         }
         response.data = data
