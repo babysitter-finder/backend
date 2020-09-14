@@ -106,7 +106,7 @@ class UserViewSet(
         serializer.save()
         data = {'message': 'Congratulations, now find a babysitter'}
         # return Response(data, status=status.HTTP_200_OK)
-        return redirect('https://frontend-bhhw9na5d.vercel.app/')
+        return redirect('https://frontend-kappa-eight.vercel.app/')
 
     @swagger_auto_schema(
         manual_parameters=[
