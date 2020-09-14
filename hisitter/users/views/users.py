@@ -6,6 +6,7 @@ import json
 # Django imports
 from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
 from django.db.models import Q
+from django.shortcuts import render, redirect
 
 # Django REST Framework imports
 from rest_framework.response import Response
@@ -104,7 +105,8 @@ class UserViewSet(
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = {'message': 'Congratulations, now find a babysitter'}
-        return Response(data, status=status.HTTP_200_OK)
+        # return Response(data, status=status.HTTP_200_OK)
+        return redirect('https://frontend-bhhw9na5d.vercel.app/')
 
     @swagger_auto_schema(
         manual_parameters=[
