@@ -48,21 +48,6 @@ services:
     volumes:
       - local_pgadmin_data:/var/lib/pgadmin
 
-  docs:
-    image: hisitter_local_docs
-    container_name: docs
-    build:
-      context: .
-      dockerfile: ./compose/local/docs/Dockerfile
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - ./docs:/docs
-      - ./config:/app/config
-      - ./hisitter:/app/hisitter
-    ports:
-      - "7000:7000"
-
   mailhog:
     image: mailhog/mailhog:v1.0.0
     container_name: mailhog
