@@ -1,13 +1,13 @@
 # Babysitter Finder ![Status badge](https://img.shields.io/badge/status-in%20progress-yellow)
 
 
-Babysitter finder is a project that offers you the babysitter service, through science and astheroids study.
+Babysitter finder is a project that offers you the babysitter service.
 
 ## 📢 Requirements
 - docker
 - docker-compose
 
-## 🛠 Instalation
+## 🛠 Installation
 1. Clone this project.
 
 2. Change of directory to the root of the project.
@@ -46,13 +46,13 @@ docker-compose -f local.yml build
 ## 🔧 Built with
 - [Django](https://www.djangoproject.com/) (django, django-celery-beat, django-redis, django-mailgun)
 - [Django REST FRAMEWORK](https://www.django-rest-framework.org/)
-- [Traefik] (https://docs.traefik.io/)
+- [Traefik](https://docs.traefik.io/)
 - [Redis](https://redis.io/)
-- [Postgres](https://www.postgresql.org/)
+- [Postgresql](https://www.postgresql.org/)
 - [Celery](https://docs.celeryproject.org/en/stable/)
 - [AWS EC2](https://aws.amazon.com/es/ec2/)
-- [MAILGUN] (https://www.mailgun.com/)
-- [SENTRY] (https://sentry.io/)
+- [MAILGUN](https://www.mailgun.com/)
+- [SENTRY](https://sentry.io/)
 
 ## 🚀 Deploy
 1. Configure a AWS EC2 machine and install docker, copy your project in the machine
@@ -66,7 +66,7 @@ docker-compose -f local.yml build
 | DJANGO_READ_DOT_ENV_FILE | TRUE                              |
 | DJANGO_SETTINGS_MODULE   | config.settings.production        |
 | DJANGO_SECRET_KEY        | Secure Key                        |
-| DJANGO_SERVER_EMAIL      | hisitter<noreply@hisitter.xyz>    |
+| DJANGO_SERVER_EMAIL      | hisitter\<noreply@hisitter.xyz\>    |
 | MAILGUN_API_KEY          | Secure Key                        |
 | MAILGUN_DOMAIN           | mail.hisitter.xyz                 |
 | DJANGO_AWS_STORAGE       | Define in AWS                     |
@@ -82,9 +82,9 @@ docker-compose -f local.yml build
 ```
 4. You can install supervisor in ubuntu to avoid the fallen in the containers.
 
-## 🗄️ Backend Implementations
+## 💻 Frontend Implementations
 
-- **[API Babysitter Finder][backend_project]**
+- **[Website Babysitter Finder][frontend_project]**
 
 ##  Contributors
 
@@ -110,7 +110,7 @@ The design system and the rest of the documentation can be found in [Notion](htt
 * To Platzi Staff.
 
 [angel_github]: https://github.com/ricardoares1989
-[abdiel_github]: https://github.com/abdieljortega
+[abdiel_github]: https://github.com/abdielDev
 [backend_project]: https://github.com/babysitter-finder/backend
 [frontend_project]: https://github.com/babysitter-finder/frontend
 
