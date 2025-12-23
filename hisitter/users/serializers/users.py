@@ -27,7 +27,7 @@ from hisitter.users.tasks import send_confirmation_email
 
 # Utils
 import jwt
-from geopy.geocoders import GoogleV3
+from geopy.geocoders import Nominatim
 
 
 class ClientFullNameSerializer(serializers.BaseSerializer):
@@ -120,7 +120,7 @@ class UserSignupSerializer(serializers.Serializer):
         if passwd != passwd_conf:
             raise serializers.ValidationError("Passwords don't match.")
         password_validation.validate_password(passwd)
-        geolocator = GoogleV3(api_key=settings.GOOGLE_API_KEY)
+        geolocator = Nominatim(user_agent="hisitter-app")
         location = geolocator.geocode(data['address'])
         if location:
             data['lat'], data['long'] = location.latitude, location.longitude
