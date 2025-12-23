@@ -28,6 +28,7 @@ from hisitter.users.tasks import send_confirmation_email
 # Utils
 import jwt
 from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 
 class ClientFullNameSerializer(serializers.BaseSerializer):
@@ -120,10 +121,15 @@ class UserSignupSerializer(serializers.Serializer):
         if passwd != passwd_conf:
             raise serializers.ValidationError("Passwords don't match.")
         password_validation.validate_password(passwd)
-        geolocator = Nominatim(user_agent="hisitter-app")
-        location = geolocator.geocode(data['address'])
-        if location:
-            data['lat'], data['long'] = location.latitude, location.longitude
+        # Geocode address (graceful fallback if service unavailable)
+        try:
+            geolocator = Nominatim(user_agent="hisitter-app", timeout=10)
+            location = geolocator.geocode(data['address'])
+            if location:
+                data['lat'], data['long'] = location.latitude, location.longitude
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            logging.warning(f"Geocoding failed for address: {e}")
+            # Continue without coordinates - can be updated later
         return data
 
     def validate_availability(self, value):
