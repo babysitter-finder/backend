@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Seeding test users...")
 
-        # Create verified client user
+        # Create or update verified client user
         client_user, created = User.objects.get_or_create(
             username="testclient",
             defaults={
@@ -27,17 +27,24 @@ class Command(BaseCommand):
                 "is_verified": True,
             }
         )
+        # Always reset password and verify (handles existing users)
+        client_user.email = "client@test.com"
+        client_user.is_verified = True
+        client_user.set_password("testpass123")
+        client_user.save()
         if created:
-            client_user.set_password("testpass123")
-            client_user.save()
             Client.objects.create(user_client=client_user)
             self.stdout.write(self.style.SUCCESS(
                 f"Created client: testclient / testpass123"
             ))
         else:
-            self.stdout.write(f"Client 'testclient' already exists")
+            if not hasattr(client_user, 'user_client'):
+                Client.objects.create(user_client=client_user)
+            self.stdout.write(self.style.SUCCESS(
+                f"Updated client: testclient / testpass123"
+            ))
 
-        # Create verified babysitter user
+        # Create or update verified babysitter user
         babysitter_user, created = User.objects.get_or_create(
             username="testbabysitter",
             defaults={
@@ -51,9 +58,12 @@ class Command(BaseCommand):
                 "is_verified": True,
             }
         )
+        # Always reset password and verify (handles existing users)
+        babysitter_user.email = "babysitter@test.com"
+        babysitter_user.is_verified = True
+        babysitter_user.set_password("testpass123")
+        babysitter_user.save()
         if created:
-            babysitter_user.set_password("testpass123")
-            babysitter_user.save()
             babysitter = Babysitter.objects.create(
                 user_bbs=babysitter_user,
                 education_degree="Early Childhood Education",
@@ -68,7 +78,19 @@ class Command(BaseCommand):
                 f"Created babysitter: testbabysitter / testpass123"
             ))
         else:
-            self.stdout.write(f"Babysitter 'testbabysitter' already exists")
+            if not hasattr(babysitter_user, 'user_bbs'):
+                babysitter = Babysitter.objects.create(
+                    user_bbs=babysitter_user,
+                    education_degree="Early Childhood Education",
+                    about_me="Experienced babysitter with 5+ years of experience.",
+                    cost_of_service=Decimal("25.00")
+                )
+                for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]:
+                    for shift in ["morning", "afternoon"]:
+                        Availability.objects.create(bbs=babysitter, day=day, shift=shift)
+            self.stdout.write(self.style.SUCCESS(
+                f"Updated babysitter: testbabysitter / testpass123"
+            ))
 
         self.stdout.write(self.style.SUCCESS("\nTest users ready:"))
         self.stdout.write("  Client:     testclient / testpass123 (client@test.com)")
