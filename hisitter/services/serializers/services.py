@@ -25,8 +25,6 @@ from hisitter.users.models import Availability
 # Task
 from hisitter.services.tasks import create_a_service_email
 
-# Utils
-import geocoder
 
 class ServiceModelSerializer(serializers.ModelSerializer):
     """ Service Model Serializer. """

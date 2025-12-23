@@ -8,13 +8,13 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 
 # Celery imports
-from celery.decorators import task
+from celery import shared_task
 
 # Models
 from hisitter.users.models import User
 
 
-@task(name='create_a_service_mail', max_retries=3)
+@shared_task(name='create_a_service_mail', max_retries=3)
 def create_a_service_email(
     client_username,
     bbs_username,

@@ -7,7 +7,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 
 # Celery imports
-from celery.decorators import task
+from celery import shared_task
 
 # Models
 from hisitter.users.models import User
@@ -26,10 +26,10 @@ def gen_verification_token(username):
         'type': 'email_confirmation'
     }
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-    return token.decode()
+    return token
 
 
-@task(name='send_confirmation_email', max_retries=3)
+@shared_task(name='send_confirmation_email', max_retries=3)
 def send_confirmation_email(username, email):
     """Send account verification link to given user."""
     verification_token = gen_verification_token(username)

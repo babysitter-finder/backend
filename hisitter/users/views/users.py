@@ -4,7 +4,6 @@
 import json
 
 # Django imports
-from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
 from django.db.models import Q
 from django.shortcuts import render, redirect
 

@@ -27,7 +27,7 @@ from hisitter.users.tasks import send_confirmation_email
 
 # Utils
 import jwt
-import geocoder
+from geopy.geocoders import GoogleV3
 
 
 class ClientFullNameSerializer(serializers.BaseSerializer):
@@ -120,9 +120,10 @@ class UserSignupSerializer(serializers.Serializer):
         if passwd != passwd_conf:
             raise serializers.ValidationError("Passwords don't match.")
         password_validation.validate_password(passwd)
-        geocode = geocoder.google(data['address'], key=settings.GOOGLE_API_KEY)
-        if geocode:
-            data['lat'], data['long'] = geocode.latlng
+        geolocator = GoogleV3(api_key=settings.GOOGLE_API_KEY)
+        location = geolocator.geocode(data['address'])
+        if location:
+            data['lat'], data['long'] = location.latitude, location.longitude
         return data
 
     def validate_availability(self, value):
@@ -168,7 +169,7 @@ class AccountVerificationSerializer(serializers.Serializer):
     def validate_token(self, data):
         """ Verify token is valid."""
         try:
-            payload = jwt.decode(data, settings.SECRET_KEY, algorithm=['HS256'])
+            payload = jwt.decode(data, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
             raise serializers.ValidationError('Verification link has expired')
         except jwt.exceptions.PyJWTError:
