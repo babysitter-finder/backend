@@ -42,24 +42,53 @@ from hisitter.utils.swagger import (
 )
 
 class ServiceViewSet(
+    mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet
 ):
     """ Service View Set.
-        Handle create, list, update and retrieve services.
+        Handle list, retrieve, update services.
     """
 
     def get_queryset(self):
-        """ Return services data. """
-        if self.action in ('list', 'retrieve'):
-            return Service.objects.filter(
+        """ Return services data.
+            Supports filtering by user_id query parameter.
+        """
+        queryset = Service.objects.all()
+
+        # Filter by user_id if provided
+        user_id = self.request.query_params.get('user_id')
+        if user_id:
+            queryset = queryset.filter(
+                Q(user_client__user_client__id=user_id) |
+                Q(user_bbs__user_bbs__id=user_id)
+            )
+        elif self.action in ('list', 'retrieve'):
+            # Default: show only current user's services
+            queryset = queryset.filter(
                 Q(user_client__user_client__username=self.request.user.username) |
                 Q(user_bbs__user_bbs__username=self.request.user.username)
             )
-        else:
-            return Service.objects.all()
-     
+
+        return queryset
+
+    user_id_param = openapi.Parameter(
+        'user_id',
+        openapi.IN_QUERY,
+        description="Filter services by user ID",
+        type=openapi.TYPE_INTEGER,
+        required=False
+    )
+
+    @swagger_auto_schema(
+        manual_parameters=[is_authenticated_permission, user_id_param],
+        operation_description="List services. Optionally filter by user_id."
+    )
+    def list(self, request, *args, **kwargs):
+        """List services for the authenticated user or filter by user_id."""
+        return super().list(request, *args, **kwargs)
+
     def get_permissions(self):
         """ Assign permissions bassed on actions."""
         permissions = [IsAuthenticated]
