@@ -26,16 +26,12 @@ from hisitter.users.serializers import (
     UserLoginSerializer,
     AvailabilitySerializer
 )
-from hisitter.services.serializers import ServiceModelSerializer
-from hisitter.reviews.serializers import ReviewModelSerializer
 
 # Permissions
 from hisitter.users.permissions import IsAccountOwner, IsClient
 
 # Models
-from hisitter.services.models import Service
 from hisitter.users.models import User, Babysitter, Client
-from hisitter.reviews.models import Review
 
 # Swagger
 from drf_yasg.utils import swagger_auto_schema
@@ -131,20 +127,5 @@ class UserViewSet(
             ]
     )
     def retrieve(self, request, *args, **kwargs):
-        """ Add the service data to the response. """
-        response = super(UserViewSet, self).retrieve(request, *args, *kwargs)
-        user = request.user
-        try:
-            bbs = Babysitter.objects.get(user_bbs=user)
-            services = Service.objects.filter(user_bbs=bbs)
-            reviews = Review.objects.filter(service_origin__user_bbs=bbs)
-        except Babysitter.DoesNotExist:
-            client = get_object_or_404(Client, user_client=user)
-            services = Service.objects.filter(user_client=client)
-            reviews = None
-        data = {
-            'user': response.data,
-            'services': ServiceModelSerializer(services, many=True).data
-        }
-        response.data = data
-        return response
+        """ Return user data. """
+        return super(UserViewSet, self).retrieve(request, *args, **kwargs)
