@@ -68,6 +68,8 @@ class UserViewSet(
             permissions = [AllowAny]
         elif self.action in ['retrieve', 'update', 'partial_update']:
             permissions = [IsAuthenticated, IsAccountOwner]
+        elif self.action in ['list', 'babysitter_data']:
+            permissions = [IsAuthenticated]
         else:
             permissions = [IsAuthenticated, IsClient]
         return [p() for p in permissions]
@@ -104,10 +106,7 @@ class UserViewSet(
         return redirect('https://frontend-kappa-eight.vercel.app/')
 
     @swagger_auto_schema(
-        manual_parameters=[
-            is_authenticated_permission,
-            is_client_permission
-            ]
+        manual_parameters=[is_authenticated_permission]
     )
     @action(detail=True, methods=['get'])
     def babysitter_data(self, request, *args, **kwargs):
