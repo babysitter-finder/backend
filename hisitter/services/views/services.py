@@ -1,9 +1,17 @@
 """ Service views."""
 
-# Ptyhon
+# Python
 import datetime
-from datetime import timezone
+from datetime import timezone, timedelta
 import logging
+
+# Shift start times (hour, minute) for 90-minute validation
+SHIFT_START_TIMES = {
+    'morning': (8, 0),
+    'afternoon': (12, 0),
+    'evening': (17, 0),
+    'night': (20, 0),
+}
 
 # Django imports
 from django.db.models import Q
@@ -126,6 +134,30 @@ class ServiceViewSet(
 
         if self.service.on_my_way:
             error = {"Babysitter already marked as on the way"}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+        # 90-minute validation
+        now = datetime.datetime.now(timezone.utc)
+        service_date = self.service.date
+        shift = self.service.shift
+        shift_hour, shift_minute = SHIFT_START_TIMES.get(shift, (8, 0))
+
+        service_start_time = datetime.datetime(
+            service_date.year,
+            service_date.month,
+            service_date.day,
+            shift_hour,
+            shift_minute,
+            tzinfo=timezone.utc
+        )
+
+        minutes_until_service = (service_start_time - now).total_seconds() / 60
+
+        if minutes_until_service > 90:
+            error = {
+                "message": "Cannot set on_my_way more than 90 minutes before service starts",
+                "minutes_until_service": int(minutes_until_service)
+            }
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
         date = datetime.datetime.now(timezone.utc)
