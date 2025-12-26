@@ -47,6 +47,7 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'count_children',
             'special_cares',
             'is_active',
+            'on_my_way',
             'service_start',
             'service_end',
             'total_cost',
@@ -55,6 +56,7 @@ class ServiceModelSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'user_client',
             'user_bbs',
+            'on_my_way',
             'service_start',
             'service_end',
             'total_cost'
@@ -193,3 +195,13 @@ class EndServiceSerializer(serializers.ModelSerializer):
             return data
         else:
             raise serializers.ValidationError('The service was finish before')
+
+
+class OnMyWaySerializer(serializers.ModelSerializer):
+    """ Serializer for babysitter on my way status. """
+    on_my_way = serializers.DateTimeField()
+
+    class Meta:
+        """ Meta Class. """
+        model = Service
+        fields = ('on_my_way',)

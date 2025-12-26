@@ -20,7 +20,8 @@ from hisitter.services.serializers import (
     ServiceModelSerializer,
     CreateServiceSerializer,
     StartServiceSerializer,
-    EndServiceSerializer
+    EndServiceSerializer,
+    OnMyWaySerializer
 )
 
 # Models
@@ -71,6 +72,8 @@ class ServiceViewSet(
             return StartServiceSerializer
         if self.action == 'end':
             return EndServiceSerializer
+        if self.action == 'on_my_way':
+            return OnMyWaySerializer
         else:
             return ServiceModelSerializer
             
@@ -105,10 +108,43 @@ class ServiceViewSet(
 
     @swagger_auto_schema(
         manual_parameters=[
+            is_authenticated_permission
+        ]
+    )
+    @action(detail=True, methods=['patch'])
+    def on_my_way(self, request, *args, **kwargs):
+        """ Babysitter indicates they are on the way. """
+        self.service = Service.objects.get(pk=kwargs['pk'])
+        # Only the babysitter can set on_my_way
+        try:
+            if request.user.user_bbs != self.service.user_bbs:
+                error = {"Only the assigned babysitter can update this status"}
+                return Response(error, status=status.HTTP_403_FORBIDDEN)
+        except Exception:
+            error = {"Only babysitters can set on_my_way status"}
+            return Response(error, status=status.HTTP_403_FORBIDDEN)
+
+        if self.service.on_my_way:
+            error = {"Babysitter already marked as on the way"}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+        date = datetime.datetime.now(timezone.utc)
+        serializer = OnMyWaySerializer(
+            self.service,
+            data={'on_my_way': date},
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        service = serializer.save()
+        data = ServiceModelSerializer(service).data
+        return Response(data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        manual_parameters=[
             is_authenticated_permission,
             is_client_permission
         ]
-    )   
+    )
     @action(detail=True, methods=['patch'])
     def end(self, request, *args, **kwargs):
         """ Start the service. """
