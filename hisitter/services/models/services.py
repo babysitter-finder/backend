@@ -78,6 +78,14 @@ class Service(HisitterModel):
         _("Service Active"),
         default=True
     )
+    scheduled_start = models.DateTimeField(
+        _("Scheduled service start time"),
+        auto_now=False,
+        auto_now_add=False,
+        blank=True,
+        null=True,
+        help_text="The scheduled start time with timezone"
+    )
     on_my_way = models.DateTimeField(
         _("Babysitter on the way"),
         auto_now=False,

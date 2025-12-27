@@ -40,6 +40,7 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'user_bbs',
             'date',
             'shift',
+            'scheduled_start',
             'duration',
             'address',
             'lat',
@@ -74,6 +75,7 @@ class CreateServiceSerializer(serializers.ModelSerializer):
             ('night', 'night')
         ]
     )
+    scheduled_start = serializers.DateTimeField()
     count_children = serializers.IntegerField(max_value=10, min_value=1)
     special_cares = serializers.CharField(allow_blank=True)
     class Meta:
@@ -82,6 +84,7 @@ class CreateServiceSerializer(serializers.ModelSerializer):
         fields = (
             'date',
             'shift',
+            'scheduled_start',
             'count_children',
             'special_cares',
             'user_bbs',
