@@ -23,6 +23,7 @@ from hisitter.users.serializers import (
     UserSignupSerializer,
     AccountVerificationSerializer,
     BabysitterModelSerializer,
+    BabysitterPublicSerializer,
     UserLoginSerializer,
     AvailabilitySerializer
 )
@@ -68,10 +69,8 @@ class UserViewSet(
             permissions = [AllowAny]
         elif self.action in ['retrieve', 'update', 'partial_update']:
             permissions = [IsAuthenticated, IsAccountOwner]
-        elif self.action == 'list':
+        elif self.action in ['list', 'babysitter_data']:
             permissions = [IsAuthenticated]
-        elif self.action == 'babysitter_data':
-            permissions = [IsAuthenticated, IsAccountOwner]
         else:
             permissions = [IsAuthenticated, IsClient]
         return [p() for p in permissions]
@@ -108,17 +107,29 @@ class UserViewSet(
         return redirect('https://frontend-kappa-eight.vercel.app/')
 
     @swagger_auto_schema(
-        manual_parameters=[is_authenticated_permission, is_account_owner_permission]
+        manual_parameters=[is_authenticated_permission]
     )
     @action(detail=True, methods=['get'])
     def babysitter_data(self, request, *args, **kwargs):
-        """Obtain de babysitter data"""
-        bbs = User.objects.get(username=kwargs['username'])
+        """Obtain babysitter data.
+
+        Returns full data if requester is the owner, otherwise returns public data only.
+        """
         try:
-            user_data = UserModelSerializer(bbs).data
-            return Response(user_data)
-        except Exception:
-            return Response(f'{str(bbs)} is not a babysitter' , status.HTTP_400_BAD_REQUEST)
+            bbs_user = User.objects.get(username=kwargs['username'])
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not hasattr(bbs_user, 'user_bbs') or not bbs_user.user_bbs:
+            return Response({'error': f'{bbs_user.username} is not a babysitter'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Owner gets full data, others get public data only
+        if request.user.username == kwargs['username']:
+            user_data = UserModelSerializer(bbs_user).data
+        else:
+            user_data = BabysitterPublicSerializer(bbs_user).data
+
+        return Response(user_data)
     
     
     @swagger_auto_schema(
