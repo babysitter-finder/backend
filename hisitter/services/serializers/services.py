@@ -49,6 +49,7 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'special_cares',
             'is_active',
             'on_my_way',
+            'arrival',
             'service_start',
             'service_end',
             'total_cost',
@@ -58,6 +59,7 @@ class ServiceModelSerializer(serializers.ModelSerializer):
             'user_client',
             'user_bbs',
             'on_my_way',
+            'arrival',
             'service_start',
             'service_end',
             'total_cost'
@@ -208,3 +210,13 @@ class OnMyWaySerializer(serializers.ModelSerializer):
         """ Meta Class. """
         model = Service
         fields = ('on_my_way',)
+
+
+class ArrivalSerializer(serializers.ModelSerializer):
+    """ Serializer for babysitter arrival status. """
+    arrival = serializers.DateTimeField()
+
+    class Meta:
+        """ Meta Class. """
+        model = Service
+        fields = ('arrival',)

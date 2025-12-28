@@ -21,7 +21,8 @@ from hisitter.services.serializers import (
     CreateServiceSerializer,
     StartServiceSerializer,
     EndServiceSerializer,
-    OnMyWaySerializer
+    OnMyWaySerializer,
+    ArrivalSerializer
 )
 
 # Models
@@ -74,6 +75,8 @@ class ServiceViewSet(
             return EndServiceSerializer
         if self.action == 'on_my_way':
             return OnMyWaySerializer
+        if self.action == 'arrival':
+            return ArrivalSerializer
         else:
             return ServiceModelSerializer
             
@@ -159,13 +162,51 @@ class ServiceViewSet(
 
     @swagger_auto_schema(
         manual_parameters=[
+            is_authenticated_permission
+        ]
+    )
+    @action(detail=True, methods=['patch'])
+    def arrival(self, request, *args, **kwargs):
+        """ Babysitter indicates they have arrived. """
+        self.service = Service.objects.get(pk=kwargs['pk'])
+        # Only the babysitter can set arrival
+        try:
+            if request.user.user_bbs != self.service.user_bbs:
+                error = {"Only the assigned babysitter can update this status"}
+                return Response(error, status=status.HTTP_403_FORBIDDEN)
+        except Exception:
+            error = {"Only babysitters can set arrival status"}
+            return Response(error, status=status.HTTP_403_FORBIDDEN)
+
+        # Must have on_my_way set first
+        if not self.service.on_my_way:
+            error = {"Must set on_my_way before arrival"}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+        if self.service.arrival:
+            error = {"Babysitter already marked as arrived"}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+        date = datetime.datetime.now(timezone.utc)
+        serializer = ArrivalSerializer(
+            self.service,
+            data={'arrival': date},
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        service = serializer.save()
+        data = ServiceModelSerializer(service).data
+        return Response(data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        manual_parameters=[
             is_authenticated_permission,
             is_client_permission
         ]
     )
     @action(detail=True, methods=['patch'])
     def end(self, request, *args, **kwargs):
-        """ Start the service. """
+        """ End the service. """
         self.service = Service.objects.get(pk=kwargs['pk'])
         
         service_start = self.service.service_start

@@ -93,6 +93,13 @@ class Service(HisitterModel):
         blank=True,
         null=True
     )
+    arrival = models.DateTimeField(
+        _("Babysitter arrived"),
+        auto_now=False,
+        auto_now_add=False,
+        blank=True,
+        null=True
+    )
     service_start = models.DateTimeField(
         _("Datetime service starts"),
         auto_now=False,
